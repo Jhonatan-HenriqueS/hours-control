@@ -1,26 +1,127 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #eef4fb;
+  --background-deep: #f8fbff;
+  --panel: rgba(255, 255, 255, 0.78);
+  --panel-strong: rgba(255, 255, 255, 0.9);
+  --panel-soft: rgba(244, 247, 252, 0.88);
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.14);
+  --text-primary: #0f172a;
+  --text-muted: #5f6b82;
+  --text-faint: #8d99af;
+  --accent: #0f766e;
+  --accent-strong: #115e59;
+  --accent-soft: rgba(15, 118, 110, 0.12);
+  --shadow-soft: 0 20px 60px rgba(15, 23, 42, 0.08);
+  --shadow-card: 0 20px 48px rgba(15, 23, 42, 0.1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --background: #09131f;
+  --background-deep: #101b2a;
+  --panel: rgba(12, 23, 38, 0.82);
+  --panel-strong: rgba(14, 27, 44, 0.92);
+  --panel-soft: rgba(18, 31, 48, 0.84);
+  --border: rgba(148, 163, 184, 0.12);
+  --border-strong: rgba(148, 163, 184, 0.2);
+  --text-primary: #ecf4ff;
+  --text-muted: #96a5bf;
+  --text-faint: #6d7f99;
+  --accent: #34d399;
+  --accent-strong: #10b981;
+  --accent-soft: rgba(52, 211, 153, 0.12);
+  --shadow-soft: 0 22px 60px rgba(2, 6, 23, 0.4);
+  --shadow-card: 0 18px 44px rgba(2, 6, 23, 0.35);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  min-height: 100%;
+  background: var(--background);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.14), transparent 28%),
+    linear-gradient(180deg, var(--background-deep), var(--background));
+  color: var(--text-primary);
+  transition:
+    background 220ms ease,
+    color 220ms ease;
+}
+
+* {
+  border-color: var(--border);
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.surface-panel {
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--panel), rgba(255, 255, 255, 0.02));
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(22px);
+}
+
+.surface-card {
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--panel-strong), rgba(255, 255, 255, 0.02));
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(22px);
+}
+
+.input-shell {
+  border: 1px solid var(--border);
+  background: var(--panel-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.input-shell:focus-within {
+  border-color: rgba(15, 118, 110, 0.4);
+  box-shadow:
+    0 0 0 4px rgba(15, 118, 110, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.animate-fade-in {
+  animation: fade-in 320ms ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 260ms ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
