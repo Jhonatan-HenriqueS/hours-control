@@ -75,9 +75,9 @@ export function getTodayInputValue() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function sortTasksByDate<T extends { dueDate: string; createdAt: string }>(
-  tasks: T[],
-) {
+export function sortTasksByDate<
+  T extends { dueDate: string; createdAt: string },
+>(tasks: T[]) {
   return [...tasks].sort((left, right) => {
     const leftTime = new Date(left.dueDate).getTime();
     const rightTime = new Date(right.dueDate).getTime();
@@ -93,7 +93,7 @@ export function sortTasksByDate<T extends { dueDate: string; createdAt: string }
 }
 
 export function getStatusClasses(status: TaskStatus) {
-  if (status === "Ocasião especial") {
+  if (status === "Tarefa ocasional") {
     return "bg-amber-500/15 text-amber-700 ring-1 ring-amber-500/20 dark:bg-amber-400/12 dark:text-amber-200 dark:ring-amber-300/20";
   }
 
