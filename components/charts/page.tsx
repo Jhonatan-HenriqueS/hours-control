@@ -8,7 +8,7 @@ export default function ChartsPage() {
   const { setCurrentView } = useAppContext();
 
   return (
-    <section className="surface-panel flex min-h-[calc(100vh-10rem)] items-center justify-center rounded-[34px] p-6 sm:p-10">
+    <section className="surface-panel flex h-[95%] items-center justify-center rounded-[34px] p-6 sm:p-10">
       <div className="mx-auto max-w-2xl text-center">
         <div className="mx-auto mb-6 grid size-20 place-items-center rounded-full border border-[var(--border)] bg-[var(--panel-soft)] text-[var(--accent)] shadow-[0_18px_40px_rgba(15,118,110,0.12)]">
           <HourglassIcon className="size-9 animate-spin" />
@@ -21,8 +21,8 @@ export default function ChartsPage() {
           Página em desenvolvimento
         </h2>
         <p className="mt-4 text-base leading-8 text-[var(--text-muted)]">
-          Em breve seus rendimentos estarão disponíveis para ser consultados
-          nesta área com gráficos e visualizações detalhadas.
+          Em breve seus rendimentos estarão disponíveis nesta área com gráficos
+          e detalhes avançados.
         </p>
 
         <div className="mt-8 flex justify-center">
