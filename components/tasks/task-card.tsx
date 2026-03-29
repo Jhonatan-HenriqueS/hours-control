@@ -40,7 +40,7 @@ export function TaskCard({ task }: TaskCardProps) {
             {task.description}
           </p>
           {isCompleted ? (
-            <p className="mt-3 flex w-full text-center text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
+            <p className="mt-3 flex w-full items-center text-center text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
               Concluída <CheckIcon className="size-[18px]" />
             </p>
           ) : null}

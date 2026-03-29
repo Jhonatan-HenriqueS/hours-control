@@ -21,7 +21,7 @@ export function AppShell({ children }: AppShellProps) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar />
-        <main className="flex-1 px-4 pb-6 pt-4 sm:px-6 lg:px-8">
+        <main className="flex flex-1 flex-col px-4 pb-6 pt-4 sm:px-6 lg:px-8">
           {children}
         </main>
       </div>
