@@ -10,6 +10,13 @@ import { TASK_STATUS_OPTIONS } from "@/lib/constants";
 import { cn, getTodayInputValue } from "@/lib/utils";
 import type { TaskInput, TaskStatus } from "@/types/app";
 
+const STATUS_HINTS: Record<TaskStatus, string> = {
+  Ocasional:
+    "Use esta opção quando a tarefa surgir de forma pontual ou inesperada.",
+  Rotina:
+    "Use esta opção para atividades que fazem parte da sua rotina diária ou recorrente.",
+};
+
 function createInitialTaskForm(): TaskInput {
   return {
     title: "",
@@ -60,7 +67,7 @@ export function TaskModal() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-2 py-4">
       <button
         type="button"
         aria-label="Fechar modal"
@@ -97,7 +104,7 @@ export function TaskModal() {
           </Button>
         </div>
 
-        <form className="mt-8 space-y-5" onSubmit={handleSave}>
+        <form className="mt-3 space-y-5" onSubmit={handleSave}>
           <InputField
             label="Título da tarefa"
             placeholder="Ex.: Revisar planejamento semanal..."
@@ -135,8 +142,8 @@ export function TaskModal() {
                   />
                 ))}
               </div>
-              <span className="text-center mt-3 text-xs text-[var(--text-muted)]">
-                Use “Tarefa ocasional” e “Rotina” para o fluxo recorrente.
+              <span className="mt-3 text-center text-xs ">
+                {STATUS_HINTS[form.status]}
               </span>
             </div>
           </div>
@@ -147,7 +154,7 @@ export function TaskModal() {
             </div>
           ) : null}
 
-          <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-end">
             <Button variant="outline" type="button" onClick={closeTaskModal}>
               Cancelar
             </Button>
@@ -173,7 +180,7 @@ function StatusOption({ status, active, onClick }: StatusOptionProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-[22px] border px-4 py-4 text-left transition duration-200 ease-out",
+        "rounded-[22px] border py-2 text-center transition duration-200 ease-out",
         active
           ? "border-[var(--accent)] bg-[var(--accent-soft)] shadow-[0_12px_32px_rgba(15,118,110,0.14)]"
           : "border-[var(--border)] bg-[var(--panel-soft)] hover:bg-[var(--panel)]",
