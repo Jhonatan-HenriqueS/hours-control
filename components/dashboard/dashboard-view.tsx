@@ -13,9 +13,7 @@ export function DashboardView() {
   const { openTaskModal, tasks } = useAppContext();
 
   const orderedTasks = sortTasksByDate(tasks);
-  const specialTasks = tasks.filter(
-    (task) => task.status === "Tarefa ocasional",
-  );
+  const specialTasks = tasks.filter((task) => task.status === "Ocasional");
   const routineTasks = tasks.filter((task) => task.status === "Rotina");
   const nextTask = orderedTasks[0];
 

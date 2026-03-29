@@ -2,7 +2,7 @@ export type Theme = "light" | "dark";
 
 export type AuthMode = "login" | "register";
 
-export type TaskStatus = "Tarefa ocasional" | "Rotina";
+export type TaskStatus = "Ocasional" | "Rotina";
 
 export type AppView = "dashboard" | "tasks";
 

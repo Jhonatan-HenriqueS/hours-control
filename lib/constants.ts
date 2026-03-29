@@ -11,7 +11,7 @@ export const STORAGE_KEYS = {
   view: "lumen-tasks.view",
 } as const;
 
-export const TASK_STATUS_OPTIONS: TaskStatus[] = ["Tarefa ocasional", "Rotina"];
+export const TASK_STATUS_OPTIONS: TaskStatus[] = ["Ocasional", "Rotina"];
 
 export const MENU_ITEMS: MenuItem[] = [
   {
