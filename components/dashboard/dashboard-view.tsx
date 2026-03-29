@@ -2,8 +2,7 @@
 
 import { useAppContext } from "@/components/app/app-provider";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, ClockIcon, PlusIcon } from "@/components/ui/icons";
-import { TaskList } from "@/components/tasks/task-list";
+import { CalendarIcon, PlusIcon } from "@/components/ui/icons";
 import {
   formatTaskDate,
   getRelativeDueLabel,
@@ -22,8 +21,8 @@ export function DashboardView() {
 
   return (
     <div className="space-y-6">
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_380px]">
-        <div className="surface-panel relative overflow-hidden rounded-[34px] p-6 sm:p-8">
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_380px] ">
+        <div className="surface-panel relative overflow-hidden rounded-[34px] p-6 sm:p-8 mb-8">
           <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(15,118,110,0.08),transparent_35%,rgba(56,189,248,0.12))]" />
           <div className="relative z-10 max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--panel-soft)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
@@ -53,7 +52,7 @@ export function DashboardView() {
           </div>
         </div>
 
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           <div className="surface-card rounded-[28px] p-5">
             <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-muted)]">
               Próxima entrega
@@ -79,7 +78,7 @@ export function DashboardView() {
             )}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-1">
+          <div className="grid gap-6 sm:grid-cols-3 xl:grid-cols-1">
             <div className="surface-card rounded-[28px] p-5">
               <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-muted)]">
                 Total
@@ -116,27 +115,6 @@ export function DashboardView() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className="surface-panel rounded-[34px] p-6 sm:p-8">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
-              Lista de tarefas
-            </p>
-            <h3 className="mt-2 text-2xl font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
-              Entregas e rotinas
-            </h3>
-          </div>
-          <div className="inline-flex items-center gap-2 rounded-2xl border border-[var(--border)] bg-[var(--panel-soft)] px-4 py-3 text-sm text-[var(--text-muted)]">
-            <ClockIcon className="size-4" />
-            Atualização local em tempo real
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <TaskList tasks={orderedTasks} onAddTask={openTaskModal} />
         </div>
       </section>
     </div>

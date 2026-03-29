@@ -7,7 +7,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { getFirstName } from "@/lib/utils";
 
 export function Topbar() {
-  const { currentUser, setMobileMenuOpen } = useAppContext();
+  const { currentUser, currentView, setMobileMenuOpen } = useAppContext();
 
   const todayLabel = new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
@@ -30,7 +30,7 @@ export function Topbar() {
           </Button>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
-              Dashboard
+              {currentView === "dashboard" ? "Dashboard" : "Tarefas"}
             </p>
             <h1 className="truncate text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)] sm:text-xl">
               {`Olá, ${getFirstName(currentUser?.name ?? "usuário")}`}

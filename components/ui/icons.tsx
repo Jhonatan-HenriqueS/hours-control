@@ -25,6 +25,19 @@ export function DashboardIcon(props: IconProps) {
   );
 }
 
+export function ListChecksIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        d="M9.5 6.5h9M9.5 12h9M9.5 17.5h9M4.5 6.5l1.25 1.25L8 5.5M4.5 12l1.25 1.25L8 11M4.5 17.5l1.25 1.25L8 16.5"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function ChevronLeftIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
@@ -134,6 +147,32 @@ export function ClockIcon(props: IconProps) {
       <circle cx="12" cy="12" r="8.25" strokeWidth="1.8" />
       <path
         d="M12 7.75v4.7l3.2 1.9"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function CheckIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        d="m5.5 12.5 4 4L18.5 7.5"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function Trash2Icon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        d="M4.75 6.75h14.5M9.25 3.75h5.5M8 3.75h8a1.25 1.25 0 0 1 1.25 1.25v1.75H6.75V5A1.25 1.25 0 0 1 8 3.75ZM8 9.25v7.5M12 9.25v7.5M16 9.25v7.5M7 20.25h10A1.75 1.75 0 0 0 18.75 18.5V6.75H5.25V18.5A1.75 1.75 0 0 0 7 20.25Z"
         strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"

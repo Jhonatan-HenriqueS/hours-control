@@ -8,7 +8,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: APP_NAME,
-  description: "Interface moderna para gestão de tarefas com autenticação simulada.",
+  description:
+    "Interface moderna para gestão de tarefas com autenticação simulada.",
 };
 
 const poppins = Poppins({
@@ -17,8 +18,7 @@ const poppins = Poppins({
   display: "swap",
 });
 
-const themeScript = `
-(() => {
+const themeScript = `(() => {
   try {
     const rawValue = window.localStorage.getItem("${STORAGE_KEYS.theme}");
     const theme = rawValue ? JSON.parse(rawValue) : "light";

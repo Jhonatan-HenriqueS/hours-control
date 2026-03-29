@@ -8,6 +8,7 @@ export const STORAGE_KEYS = {
   accounts: "lumen-tasks.accounts",
   tasks: "lumen-tasks.tasks",
   sidebar: "lumen-tasks.sidebar",
+  view: "lumen-tasks.view",
 } as const;
 
 export const TASK_STATUS_OPTIONS: TaskStatus[] = ["Tarefa ocasional", "Rotina"];
@@ -17,5 +18,10 @@ export const MENU_ITEMS: MenuItem[] = [
     id: "dashboard",
     label: "Dashboard",
     icon: "dashboard",
+  },
+  {
+    id: "tasks",
+    label: "Tarefas",
+    icon: "listChecks",
   },
 ];

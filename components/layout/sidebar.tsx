@@ -2,12 +2,19 @@
 
 import { useAppContext } from "@/components/app/app-provider";
 import { Button } from "@/components/ui/button";
-import { DashboardIcon, LogOutIcon, XIcon } from "@/components/ui/icons";
+import {
+  DashboardIcon,
+  ListChecksIcon,
+  LogOutIcon,
+  XIcon,
+} from "@/components/ui/icons";
 import { LogoMark } from "@/components/ui/logo-mark";
 import { cn } from "@/lib/utils";
+import type { MenuIcon } from "@/types/app";
 
-const iconMap = {
+const iconMap: Record<MenuIcon, typeof DashboardIcon> = {
   dashboard: DashboardIcon,
+  listChecks: ListChecksIcon,
 };
 
 interface SidebarContentProps {
@@ -16,10 +23,12 @@ interface SidebarContentProps {
 
 function SidebarContent({ mobile = false }: SidebarContentProps) {
   const {
+    currentView,
     currentUser,
     isSidebarCollapsed,
     menuItems,
     logout,
+    setCurrentView,
     setMobileMenuOpen,
     toggleSidebar,
   } = useAppContext();
@@ -55,18 +64,35 @@ function SidebarContent({ mobile = false }: SidebarContentProps) {
               <button
                 key={item.id}
                 type="button"
+                onClick={() => setCurrentView(item.id)}
                 className={cn(
                   "group flex w-full items-center gap-3 rounded-[22px] px-4 py-3 text-left transition duration-200 ease-out",
-                  "bg-[var(--accent-soft)] text-[var(--accent)] ring-1 ring-[var(--border)]",
+                  currentView === item.id
+                    ? "bg-[var(--accent-soft)] text-[var(--accent)] ring-1 ring-[var(--border)]"
+                    : "text-[var(--text-muted)] hover:bg-[var(--panel-soft)] hover:text-[var(--text-primary)]",
                   collapsed ? "justify-center px-3" : "justify-start",
                 )}
               >
-                <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-white/60 text-[var(--accent)] shadow-sm dark:bg-white/8">
+                <span
+                  className={cn(
+                    "grid size-10 shrink-0 place-items-center rounded-2xl shadow-sm transition duration-200 ease-out dark:bg-white/8",
+                    currentView === item.id
+                      ? "bg-white/60 text-[var(--accent)]"
+                      : "bg-[var(--panel-soft)] text-[var(--text-muted)] group-hover:bg-white/60 group-hover:text-[var(--accent)]",
+                  )}
+                >
                   <Icon className="size-5" />
                 </span>
                 {!collapsed ? (
                   <span className="min-w-0">
-                    <span className="block text-sm font-semibold text-[var(--text-primary)]">
+                    <span
+                      className={cn(
+                        "block text-sm font-semibold",
+                        currentView === item.id
+                          ? "text-[var(--text-primary)]"
+                          : "text-[var(--text-muted)] group-hover:text-[var(--text-primary)]",
+                      )}
+                    >
                       {item.label}
                     </span>
                   </span>

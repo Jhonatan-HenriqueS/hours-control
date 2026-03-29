@@ -1,4 +1,8 @@
-import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
+import type {
+  InputHTMLAttributes,
+  ReactNode,
+  TextareaHTMLAttributes,
+} from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -9,12 +13,10 @@ interface BaseFieldProps {
 }
 
 interface InputFieldProps
-  extends BaseFieldProps,
-    InputHTMLAttributes<HTMLInputElement> {}
+  extends BaseFieldProps, InputHTMLAttributes<HTMLInputElement> {}
 
 interface TextareaFieldProps
-  extends BaseFieldProps,
-    TextareaHTMLAttributes<HTMLTextAreaElement> {}
+  extends BaseFieldProps, TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
 export function InputField({
   label,
@@ -35,14 +37,18 @@ export function InputField({
         )}
       >
         {icon ? (
-          <span className="text-[var(--text-muted)] [&>svg]:size-[18px]">{icon}</span>
+          <span className="text-[var(--text-muted)] [&>svg]:size-[18px]">
+            {icon}
+          </span>
         ) : null}
         <input
           className="w-full border-0 bg-transparent text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-faint)]"
           {...props}
         />
       </span>
-      {hint ? <span className="text-xs text-[var(--text-muted)]">{hint}</span> : null}
+      {hint ? (
+        <span className="text-xs text-[var(--text-muted)]">{hint}</span>
+      ) : null}
     </label>
   );
 }
@@ -61,7 +67,7 @@ export function TextareaField({
       </span>
       <span
         className={cn(
-          "input-shell flex min-h-32 gap-3 rounded-2xl px-4 py-3 transition duration-200 ease-out",
+          "input-shell flex max-h-24 gap-3 rounded-2xl px-4 py-3 transition duration-200 ease-out",
           className,
         )}
       >
@@ -75,7 +81,9 @@ export function TextareaField({
           {...props}
         />
       </span>
-      {hint ? <span className="text-xs text-[var(--text-muted)]">{hint}</span> : null}
+      {hint ? (
+        <span className="text-xs text-[var(--text-muted)]">{hint}</span>
+      ) : null}
     </label>
   );
 }

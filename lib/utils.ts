@@ -94,8 +94,8 @@ export function sortTasksByDate<
 
 export function getStatusClasses(status: TaskStatus) {
   if (status === "Tarefa ocasional") {
-    return "bg-amber-500/15 text-amber-700 ring-1 ring-amber-500/20 dark:bg-amber-400/12 dark:text-amber-200 dark:ring-amber-300/20";
+    return "bg-amber-500/15 text-amber-700 ring-1 ring-amber-500/20 dark:bg-amber-400/12 dark:text-amber-600 dark:ring-amber-300/20";
   }
 
-  return "bg-sky-500/12 text-sky-700 ring-1 ring-sky-500/20 dark:bg-sky-400/12 dark:text-sky-200 dark:ring-sky-300/20";
+  return "bg-sky-500/12 text-sky-700 ring-1 ring-sky-500/20 dark:bg-sky-400/12 dark:text-sky-600 dark:ring-sky-300/20";
 }

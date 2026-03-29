@@ -12,6 +12,7 @@ import { MENU_ITEMS, STORAGE_KEYS } from "@/lib/constants";
 import { createId } from "@/lib/utils";
 import { usePersistentState } from "@/hooks/use-persistent-state";
 import type {
+  AppView,
   AuthPayload,
   MenuItem,
   StoredAccount,
@@ -32,11 +33,13 @@ interface AppContextValue {
   tasks: Task[];
   theme: Theme;
   menuItems: MenuItem[];
+  currentView: AppView;
   isSidebarCollapsed: boolean;
   isMobileMenuOpen: boolean;
   isTaskModalOpen: boolean;
   toggleTheme: () => void;
   toggleSidebar: () => void;
+  setCurrentView: (view: AppView) => void;
   setMobileMenuOpen: (open: boolean) => void;
   openTaskModal: () => void;
   closeTaskModal: () => void;
@@ -44,6 +47,8 @@ interface AppContextValue {
   register: (payload: AuthPayload) => AuthResult;
   logout: () => void;
   addTask: (task: TaskInput) => void;
+  completeTask: (taskId: string) => void;
+  deleteTask: (taskId: string) => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -69,13 +74,20 @@ export function AppProvider({ children }: AppProviderProps) {
     STORAGE_KEYS.tasks,
     [],
   );
+  const [currentView, setCurrentViewState, viewReady] =
+    usePersistentState<AppView>(STORAGE_KEYS.view, "dashboard");
   const [isSidebarCollapsed, setIsSidebarCollapsed, sidebarReady] =
     usePersistentState<boolean>(STORAGE_KEYS.sidebar, false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   const isReady =
-    themeReady && sessionReady && accountsReady && tasksReady && sidebarReady;
+    themeReady &&
+    sessionReady &&
+    accountsReady &&
+    tasksReady &&
+    viewReady &&
+    sidebarReady;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -182,6 +194,7 @@ export function AppProvider({ children }: AppProviderProps) {
 
   function logout() {
     setCurrentUser(null);
+    setCurrentViewState("dashboard");
     setIsMobileMenuOpen(false);
     setIsTaskModalOpen(false);
   }
@@ -201,9 +214,29 @@ export function AppProvider({ children }: AppProviderProps) {
       dueDate: task.dueDate,
       status: task.status,
       createdAt: new Date().toISOString(),
+      isCompleted: false,
+      completedAt: null,
     };
 
     setTasks([newTask, ...tasks]);
+  }
+
+  function completeTask(taskId: string) {
+    setTasks(
+      tasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              isCompleted: true,
+              completedAt: task.completedAt ?? new Date().toISOString(),
+            }
+          : task,
+      ),
+    );
+  }
+
+  function deleteTask(taskId: string) {
+    setTasks(tasks.filter((task) => task.id !== taskId));
   }
 
   function toggleTheme() {
@@ -212,6 +245,11 @@ export function AppProvider({ children }: AppProviderProps) {
 
   function toggleSidebar() {
     setIsSidebarCollapsed(!isSidebarCollapsed);
+  }
+
+  function setCurrentView(view: AppView) {
+    setCurrentViewState(view);
+    setIsMobileMenuOpen(false);
   }
 
   function openTaskModal() {
@@ -230,11 +268,13 @@ export function AppProvider({ children }: AppProviderProps) {
         tasks,
         theme,
         menuItems: MENU_ITEMS,
+        currentView,
         isSidebarCollapsed,
         isMobileMenuOpen,
         isTaskModalOpen,
         toggleTheme,
         toggleSidebar,
+        setCurrentView,
         setMobileMenuOpen: setIsMobileMenuOpen,
         openTaskModal,
         closeTaskModal,
@@ -242,6 +282,8 @@ export function AppProvider({ children }: AppProviderProps) {
         register,
         logout,
         addTask,
+        completeTask,
+        deleteTask,
       }}
     >
       {children}

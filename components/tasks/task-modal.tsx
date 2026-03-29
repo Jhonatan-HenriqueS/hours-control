@@ -85,9 +85,6 @@ export function TaskModal() {
             >
               Adicionar tarefa
             </h3>
-            <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-              Registre um item com descrição, prazo e categoria visual.
-            </p>
           </div>
 
           <Button
@@ -103,14 +100,14 @@ export function TaskModal() {
         <form className="mt-8 space-y-5" onSubmit={handleSave}>
           <InputField
             label="Título da tarefa"
-            placeholder="Ex.: Revisar planejamento semanal"
+            placeholder="Ex.: Revisar planejamento semanal..."
             value={form.title}
             onChange={(event) => updateField("title", event.target.value)}
           />
 
           <TextareaField
             label="Descrição"
-            placeholder="Descreva o contexto e os detalhes importantes para executar esta tarefa."
+            placeholder="Descreva o contexto desta tarefa..."
             value={form.description}
             onChange={(event) => updateField("description", event.target.value)}
           />
@@ -138,7 +135,7 @@ export function TaskModal() {
                   />
                 ))}
               </div>
-              <span className="text-xs text-[var(--text-muted)]">
+              <span className="text-center mt-3 text-xs text-[var(--text-muted)]">
                 Use “Tarefa ocasional” e “Rotina” para o fluxo recorrente.
               </span>
             </div>

@@ -4,7 +4,9 @@ export type AuthMode = "login" | "register";
 
 export type TaskStatus = "Tarefa ocasional" | "Rotina";
 
-export type MenuIcon = "dashboard";
+export type AppView = "dashboard" | "tasks";
+
+export type MenuIcon = "dashboard" | "listChecks";
 
 export interface User {
   id: string;
@@ -24,6 +26,8 @@ export interface Task {
   dueDate: string;
   status: TaskStatus;
   createdAt: string;
+  isCompleted?: boolean;
+  completedAt?: string | null;
 }
 
 export interface TaskInput {
@@ -40,8 +44,7 @@ export interface AuthPayload {
 }
 
 export interface MenuItem {
-  id: string;
+  id: AppView;
   label: string;
-
   icon: MenuIcon;
 }
