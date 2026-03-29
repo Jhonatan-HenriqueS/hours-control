@@ -38,6 +38,19 @@ export function ListChecksIcon(props: IconProps) {
   );
 }
 
+export function ChartIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        d="M4.75 19.25h14.5M7.5 16.5V11M12 16.5V7.5M16.5 16.5V4.75"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function ChevronLeftIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
@@ -201,6 +214,19 @@ export function Trash2Icon(props: IconProps) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
       <path
         d="M4.75 6.75h14.5M9.25 3.75h5.5M8 3.75h8a1.25 1.25 0 0 1 1.25 1.25v1.75H6.75V5A1.25 1.25 0 0 1 8 3.75ZM8 9.25v7.5M12 9.25v7.5M16 9.25v7.5M7 20.25h10A1.75 1.75 0 0 0 18.75 18.5V6.75H5.25V18.5A1.75 1.75 0 0 0 7 20.25Z"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function HourglassIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        d="M7 3.75h10M7 20.25h10M8.25 3.75c0 3.04 1.5 4.9 3.75 6.25-2.25 1.35-3.75 3.21-3.75 6.25M15.75 3.75c0 3.04-1.5 4.9-3.75 6.25 2.25 1.35 3.75 3.21 3.75 6.25M8.75 16.25h6.5M9.25 8.25h5.5"
         strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"

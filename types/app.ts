@@ -4,9 +4,9 @@ export type AuthMode = "login" | "register";
 
 export type TaskStatus = "Ocasional" | "Rotina";
 
-export type AppView = "dashboard" | "tasks";
+export type AppView = "dashboard" | "tasks" | "charts";
 
-export type MenuIcon = "dashboard" | "listChecks";
+export type MenuIcon = "dashboard" | "listChecks" | "chart";
 
 export interface User {
   id: string;

@@ -30,7 +30,11 @@ export function Topbar() {
           </Button>
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
-              {currentView === "dashboard" ? "Dashboard" : "Tarefas"}
+              {currentView === "dashboard"
+                ? "Dashboard"
+                : currentView === "tasks"
+                  ? "Tarefas"
+                  : "Gráficos"}
             </p>
             <h1 className="truncate text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)] sm:text-xl">
               {`Olá, ${getFirstName(currentUser?.name ?? "usuário")}`}

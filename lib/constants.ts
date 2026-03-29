@@ -24,4 +24,9 @@ export const MENU_ITEMS: MenuItem[] = [
     label: "Tarefas",
     icon: "listChecks",
   },
+  {
+    id: "charts",
+    label: "Gráficos",
+    icon: "chart",
+  },
 ];
