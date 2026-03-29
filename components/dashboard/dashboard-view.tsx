@@ -35,11 +35,12 @@ export function DashboardView() {
             Visualize e organize sua rotina.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-5 ">
             <Button
               size="lg"
               onClick={openTaskModal}
               leadingIcon={<PlusIcon className="size-4" />}
+              className=" xl:w-[40%]"
             >
               Adicionar tarefa
             </Button>
