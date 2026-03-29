@@ -25,10 +25,10 @@ export function TaskCard({ task }: TaskCardProps) {
   return (
     <article
       className={cn(
-        "surface-card group flex h-full flex-col rounded-[28px] p-5 transition duration-300 ease-out hover:-translate-y-1",
+        "group flex h-full flex-col rounded-[28px] border p-5 backdrop-blur-[22px] transition duration-300 ease-out hover:-translate-y-1",
         isCompleted
-          ? "border-emerald-300/70 bg-[linear-gradient(135deg,rgba(34,197,94,0.18),rgba(220,252,231,0.92))] shadow-[0_18px_40px_rgba(34,197,94,0.16)] dark:border-emerald-700/60 dark:bg-[linear-gradient(135deg,rgba(5,46,22,0.88),rgba(22,101,52,0.46))] dark:shadow-[0_18px_40px_rgba(6,95,70,0.28)]"
-          : "",
+          ? "border-emerald-200/90 bg-[linear-gradient(135deg,rgba(236,253,245,0.98),rgba(220,252,231,0.96),rgba(209,250,229,0.92))] shadow-[0_18px_40px_rgba(74,222,128,0.12)] dark:border-emerald-800/60 dark:bg-[linear-gradient(135deg,rgba(6,78,59,0.42),rgba(6,95,70,0.34),rgba(20,83,45,0.28))] dark:shadow-[0_18px_40px_rgba(5,150,105,0.18)]"
+          : "surface-card",
       )}
     >
       <div className="flex items-start justify-between gap-4">
