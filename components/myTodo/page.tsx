@@ -11,7 +11,7 @@ const MyTodos = () => {
   const orderedTasks = sortTasksByDate(tasks);
 
   return (
-    <section className="surface-panel rounded-[34px] p-6 sm:p-8">
+    <section className="surface-panel rounded-[34px] p-4 sm:p-8">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
