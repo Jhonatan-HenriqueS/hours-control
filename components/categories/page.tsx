@@ -3,6 +3,17 @@
 import { useMemo, useState, type FormEvent } from "react";
 
 import { useAppContext } from "@/components/app/app-provider";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/ui/input-field";
 import { CheckIcon, PencilIcon, Trash2Icon } from "@/components/ui/icons";
@@ -99,20 +110,6 @@ export default function CategoriesPage() {
   }
 
   function handleDelete(categoryId: string) {
-    const category = categories.find((item) => item.id === categoryId);
-
-    if (!category) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Deseja excluir a categoria "${category.name}"?`,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     deleteCategory(categoryId);
 
     if (editingId === categoryId) {
@@ -159,7 +156,10 @@ export default function CategoriesPage() {
                   key={status}
                   type="button"
                   onClick={() =>
-                    setForm((current) => ({ ...current, categoryClass: status }))
+                    setForm((current) => ({
+                      ...current,
+                      categoryClass: status,
+                    }))
                   }
                   className={cn(
                     "rounded-[22px] border px-4 py-3 text-left transition duration-200 ease-out",
@@ -171,11 +171,6 @@ export default function CategoriesPage() {
                   <span className="block text-sm font-semibold text-[var(--text-primary)]">
                     {status}
                   </span>
-                  <span className="mt-1 block text-xs text-[var(--text-muted)]">
-                    {status === "Ocasional"
-                      ? "Categorias para tarefas pontuais."
-                      : "Categorias para o fluxo recorrente."}
-                  </span>
                 </button>
               ))}
             </div>
@@ -185,7 +180,7 @@ export default function CategoriesPage() {
             <span className="text-sm font-medium text-[var(--text-primary)]">
               Cor da categoria
             </span>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+            <div className="grid grid-cols-5 gap-3">
               {CATEGORY_COLOR_OPTIONS.map((color) => {
                 const isSelected = form.color === color.id;
                 const isUnavailable = usedColorsInClass.has(color.id);
@@ -202,7 +197,7 @@ export default function CategoriesPage() {
                       }))
                     }
                     className={cn(
-                      "rounded-[22px] border px-3 py-3 text-left transition duration-200 ease-out",
+                      "relative grid aspect-square place-items-center rounded-[22px] border transition duration-200 ease-out",
                       isSelected
                         ? "border-[var(--accent)] bg-[var(--accent-soft)] shadow-[0_12px_32px_rgba(15,118,110,0.14)]"
                         : "border-[var(--border)] bg-[var(--panel-soft)] hover:bg-[var(--panel)]",
@@ -210,21 +205,20 @@ export default function CategoriesPage() {
                         ? "cursor-not-allowed opacity-45 hover:bg-[var(--panel-soft)]"
                         : "",
                     )}
+                    aria-label={color.label}
+                    title={color.label}
                   >
-                    <span className="flex items-center gap-2">
-                      <span
-                        className={cn(
-                          "size-4 rounded-full shadow-sm",
-                          color.swatchClassName,
-                        )}
-                      />
-                      <span className="text-sm font-semibold text-[var(--text-primary)]">
-                        {color.label}
+                    <span
+                      className={cn(
+                        "size-8 rounded-full shadow-sm sm:size-9",
+                        color.swatchClassName,
+                      )}
+                    />
+                    {isSelected ? (
+                      <span className="absolute right-1.5 top-1.5 grid size-5 place-items-center rounded-full bg-[var(--text-primary)] text-[var(--background)] dark:bg-white dark:text-slate-900">
+                        <CheckIcon className="size-3" />
                       </span>
-                    </span>
-                    <span className="mt-2 block text-[11px] text-[var(--text-muted)]">
-                      {isUnavailable ? "Em uso nesta classe" : "Disponível"}
-                    </span>
+                    ) : null}
                   </button>
                 );
               })}
@@ -245,12 +239,17 @@ export default function CategoriesPage() {
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
             {editingId ? (
-              <Button variant="outline" type="button" onClick={resetForm}>
-                Cancelar edição
+              <Button
+                variant="outline"
+                type="button"
+                className="w-full"
+                onClick={resetForm}
+              >
+                Cancelar
               </Button>
             ) : null}
-            <Button type="submit">
-              {editingId ? "Salvar alterações" : "Criar categoria"}
+            <Button type="submit" className="w-full">
+              {editingId ? "Salvar" : "Criar"}
             </Button>
           </div>
         </form>
@@ -336,16 +335,40 @@ export default function CategoriesPage() {
                       >
                         <PencilIcon className="size-4" />
                       </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleDelete(category.id)}
-                        aria-label="Excluir categoria"
-                        className="border-rose-300/60 text-rose-700 hover:bg-rose-500/10 dark:border-rose-800 dark:text-rose-300"
-                      >
-                        <Trash2Icon className="size-4" />
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            aria-label="Excluir categoria"
+                            className="border-rose-300/60 text-rose-700 hover:bg-rose-500/10 dark:border-rose-800 dark:text-rose-300"
+                          >
+                            <Trash2Icon className="size-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
+                              Confirmar exclusão
+                            </p>
+                            <AlertDialogTitle>
+                              Excluir categoria
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {`Deseja excluir a categoria "${category.name}"? Esta ação remove a categoria da lista e não poderá ser desfeita.`}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(category.id)}
+                            >
+                              Excluir categoria
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                 </article>
