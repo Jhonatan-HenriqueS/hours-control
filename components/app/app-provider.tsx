@@ -14,6 +14,8 @@ import { usePersistentState } from "@/hooks/use-persistent-state";
 import type {
   AppView,
   AuthPayload,
+  Category,
+  CategoryInput,
   MenuItem,
   StoredAccount,
   Task,
@@ -29,6 +31,7 @@ type AuthResult = {
 
 interface AppContextValue {
   isReady: boolean;
+  categories: Category[];
   currentUser: User | null;
   tasks: Task[];
   theme: Theme;
@@ -46,7 +49,10 @@ interface AppContextValue {
   login: (payload: AuthPayload) => AuthResult;
   register: (payload: AuthPayload) => AuthResult;
   logout: () => void;
-  addTask: (task: TaskInput) => void;
+  addTask: (task: TaskInput) => AuthResult;
+  createCategory: (category: CategoryInput) => AuthResult;
+  updateCategory: (categoryId: string, category: CategoryInput) => AuthResult;
+  deleteCategory: (categoryId: string) => void;
   completeTask: (taskId: string) => void;
   deleteTask: (taskId: string) => void;
 }
@@ -70,6 +76,10 @@ export function AppProvider({ children }: AppProviderProps) {
     STORAGE_KEYS.accounts,
     [],
   );
+  const [categories, setCategories, categoriesReady] = usePersistentState<Category[]>(
+    STORAGE_KEYS.categories,
+    [],
+  );
   const [tasks, setTasks, tasksReady] = usePersistentState<Task[]>(
     STORAGE_KEYS.tasks,
     [],
@@ -85,6 +95,7 @@ export function AppProvider({ children }: AppProviderProps) {
     themeReady &&
     sessionReady &&
     accountsReady &&
+    categoriesReady &&
     tasksReady &&
     viewReady &&
     sidebarReady;
@@ -199,12 +210,28 @@ export function AppProvider({ children }: AppProviderProps) {
     setIsTaskModalOpen(false);
   }
 
-  function addTask(task: TaskInput) {
+  function addTask(task: TaskInput): AuthResult {
     const title = task.title.trim();
     const description = task.description.trim();
 
-    if (!title || !description || !task.dueDate) {
-      return;
+    if (!title || !description || !task.dueDate || !task.categoryId) {
+      return {
+        ok: false,
+        message: "Preencha título, descrição, prazo e categoria.",
+      };
+    }
+
+    const selectedCategory = categories.find(
+      (category) =>
+        category.id === task.categoryId && category.categoryClass === task.status,
+    );
+
+    if (!selectedCategory) {
+      return {
+        ok: false,
+        message:
+          "Selecione uma categoria válida para a classe escolhida antes de salvar.",
+      };
     }
 
     const newTask: Task = {
@@ -213,12 +240,103 @@ export function AppProvider({ children }: AppProviderProps) {
       description,
       dueDate: task.dueDate,
       status: task.status,
+      categoryId: selectedCategory.id,
+      categoryName: selectedCategory.name,
+      categoryColor: selectedCategory.color,
       createdAt: new Date().toISOString(),
       isCompleted: false,
       completedAt: null,
     };
 
     setTasks([newTask, ...tasks]);
+
+    return { ok: true };
+  }
+
+  function validateCategory(
+    category: CategoryInput,
+    categoryId?: string,
+  ): AuthResult {
+    const normalizedName = category.name.trim();
+
+    if (!normalizedName) {
+      return {
+        ok: false,
+        message: "Informe um nome para a categoria.",
+      };
+    }
+
+    const duplicatedColor = categories.some(
+      (item) =>
+        item.id !== categoryId &&
+        item.categoryClass === category.categoryClass &&
+        item.color === category.color,
+    );
+
+    if (duplicatedColor) {
+      return {
+        ok: false,
+        message:
+          "Esta cor já está em uso nesta classe. Escolha outra cor para continuar.",
+      };
+    }
+
+    return { ok: true };
+  }
+
+  function createCategory(category: CategoryInput): AuthResult {
+    const validation = validateCategory(category);
+
+    if (!validation.ok) {
+      return validation;
+    }
+
+    const timestamp = new Date().toISOString();
+
+    setCategories([
+      {
+        id: createId(),
+        name: category.name.trim(),
+        categoryClass: category.categoryClass,
+        color: category.color,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      },
+      ...categories,
+    ]);
+
+    return { ok: true };
+  }
+
+  function updateCategory(
+    categoryId: string,
+    category: CategoryInput,
+  ): AuthResult {
+    const validation = validateCategory(category, categoryId);
+
+    if (!validation.ok) {
+      return validation;
+    }
+
+    setCategories(
+      categories.map((item) =>
+        item.id === categoryId
+          ? {
+              ...item,
+              name: category.name.trim(),
+              categoryClass: category.categoryClass,
+              color: category.color,
+              updatedAt: new Date().toISOString(),
+            }
+          : item,
+      ),
+    );
+
+    return { ok: true };
+  }
+
+  function deleteCategory(categoryId: string) {
+    setCategories(categories.filter((category) => category.id !== categoryId));
   }
 
   function completeTask(taskId: string) {
@@ -264,6 +382,7 @@ export function AppProvider({ children }: AppProviderProps) {
     <AppContext.Provider
       value={{
         isReady,
+        categories,
         currentUser,
         tasks,
         theme,
@@ -282,6 +401,9 @@ export function AppProvider({ children }: AppProviderProps) {
         register,
         logout,
         addTask,
+        createCategory,
+        updateCategory,
+        deleteCategory,
         completeTask,
         deleteTask,
       }}

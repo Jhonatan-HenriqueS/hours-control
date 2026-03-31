@@ -34,7 +34,9 @@ export function Topbar() {
                 ? "Dashboard"
                 : currentView === "tasks"
                   ? "Tarefas"
-                  : "Gráficos"}
+                  : currentView === "charts"
+                    ? "Gráficos"
+                    : "Categorias"}
             </p>
             <h1 className="truncate text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)] sm:text-xl">
               {`Olá, ${getFirstName(currentUser?.name ?? "usuário")}`}

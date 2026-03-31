@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/icons";
 import {
   cn,
+  getCategoryBadgeClasses,
+  getCategoryColorOption,
   formatTaskDate,
   getRelativeDueLabel,
   getStatusClasses,
@@ -21,6 +23,7 @@ interface TaskCardProps {
 export function TaskCard({ task }: TaskCardProps) {
   const { completeTask, deleteTask } = useAppContext();
   const isCompleted = Boolean(task.isCompleted);
+  const categoryColor = getCategoryColorOption(task.categoryColor);
 
   return (
     <article
@@ -36,6 +39,21 @@ export function TaskCard({ task }: TaskCardProps) {
           <h4 className="text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
             {task.title}
           </h4>
+          {task.categoryName ? (
+            <span
+              className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ${getCategoryBadgeClasses(
+                task.categoryColor,
+              )}`}
+            >
+              <span
+                className={cn(
+                  "size-2.5 rounded-full",
+                  categoryColor?.swatchClassName,
+                )}
+              />
+              {task.categoryName}
+            </span>
+          ) : null}
           <p className="mt-1 text-sm leading-6 text-[var(--text-muted)]">
             {task.description}
           </p>

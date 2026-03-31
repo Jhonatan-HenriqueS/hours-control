@@ -2,6 +2,7 @@
 
 import { AppProvider, useAppContext } from "@/components/app/app-provider";
 import { AuthScreen } from "@/components/auth/auth-screen";
+import CategoriesPage from "@/components/categories/page";
 import ChartsPage from "@/components/charts/page";
 import { DashboardView } from "@/components/dashboard/dashboard-view";
 import { AppShell } from "@/components/layout/app-shell";
@@ -25,6 +26,8 @@ function TaskManagerContent() {
         <DashboardView />
       ) : currentView === "tasks" ? (
         <MyTodos />
+      ) : currentView === "categories" ? (
+        <CategoriesPage />
       ) : (
         <ChartsPage />
       )}

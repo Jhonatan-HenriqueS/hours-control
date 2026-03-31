@@ -3,6 +3,7 @@
 import { useAppContext } from "@/components/app/app-provider";
 import { Button } from "@/components/ui/button";
 import {
+  CategoryIcon,
   ChartIcon,
   DashboardIcon,
   ListChecksIcon,
@@ -14,6 +15,7 @@ import { cn } from "@/lib/utils";
 import type { MenuIcon } from "@/types/app";
 
 const iconMap: Record<MenuIcon, typeof DashboardIcon> = {
+  category: CategoryIcon,
   chart: ChartIcon,
   dashboard: DashboardIcon,
   listChecks: ListChecksIcon,

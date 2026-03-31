@@ -1,4 +1,5 @@
-import type { TaskStatus } from "@/types/app";
+import { CATEGORY_COLOR_OPTIONS } from "@/lib/constants";
+import type { CategoryColor, TaskStatus } from "@/types/app";
 
 export function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -192,4 +193,13 @@ export function getStatusClasses(status: TaskStatus) {
   }
 
   return "bg-sky-500/12 text-sky-700 ring-1 ring-sky-500/20 dark:bg-sky-400/12 dark:text-sky-600 dark:ring-sky-300/20";
+}
+
+export function getCategoryColorOption(color?: CategoryColor | null) {
+  return CATEGORY_COLOR_OPTIONS.find((option) => option.id === color) ?? null;
+}
+
+export function getCategoryBadgeClasses(color?: CategoryColor | null) {
+  return getCategoryColorOption(color)?.badgeClassName ??
+    "bg-slate-500/12 text-slate-700 ring-slate-500/20 dark:bg-slate-400/12 dark:text-slate-200 dark:ring-slate-300/20";
 }

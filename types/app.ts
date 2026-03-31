@@ -4,9 +4,21 @@ export type AuthMode = "login" | "register";
 
 export type TaskStatus = "Ocasional" | "Rotina";
 
-export type AppView = "dashboard" | "tasks" | "charts";
+export type CategoryColor =
+  | "violet"
+  | "blue"
+  | "red"
+  | "green"
+  | "yellow"
+  | "orange"
+  | "pink"
+  | "cyan"
+  | "indigo"
+  | "neutral";
 
-export type MenuIcon = "dashboard" | "listChecks" | "chart";
+export type AppView = "dashboard" | "tasks" | "charts" | "categories";
+
+export type MenuIcon = "dashboard" | "listChecks" | "chart" | "category";
 
 export interface User {
   id: string;
@@ -25,6 +37,9 @@ export interface Task {
   description: string;
   dueDate: string;
   status: TaskStatus;
+  categoryId?: string | null;
+  categoryName?: string | null;
+  categoryColor?: CategoryColor | null;
   createdAt: string;
   isCompleted?: boolean;
   completedAt?: string | null;
@@ -35,6 +50,22 @@ export interface TaskInput {
   description: string;
   dueDate: string;
   status: TaskStatus;
+  categoryId: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  categoryClass: TaskStatus;
+  color: CategoryColor;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CategoryInput {
+  name: string;
+  categoryClass: TaskStatus;
+  color: CategoryColor;
 }
 
 export interface AuthPayload {

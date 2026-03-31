@@ -51,6 +51,19 @@ export function ChartIcon(props: IconProps) {
   );
 }
 
+export function CategoryIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        d="M4.75 7.25A2.5 2.5 0 0 1 7.25 4.75h3.18a2 2 0 0 1 1.42.59l.81.82a2 2 0 0 0 1.42.59h2.67a2.5 2.5 0 0 1 2.5 2.5v7.5a2.5 2.5 0 0 1-2.5 2.5H7.25a2.5 2.5 0 0 1-2.5-2.5z"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function ChevronLeftIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
@@ -214,6 +227,19 @@ export function Trash2Icon(props: IconProps) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
       <path
         d="M4.75 6.75h14.5M9.25 3.75h5.5M8 3.75h8a1.25 1.25 0 0 1 1.25 1.25v1.75H6.75V5A1.25 1.25 0 0 1 8 3.75ZM8 9.25v7.5M12 9.25v7.5M16 9.25v7.5M7 20.25h10A1.75 1.75 0 0 0 18.75 18.5V6.75H5.25V18.5A1.75 1.75 0 0 0 7 20.25Z"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function PencilIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <path
+        d="m4.75 16.75 8.9-8.9a1.75 1.75 0 0 1 2.47 0l1.03 1.03a1.75 1.75 0 0 1 0 2.47l-8.9 8.9-3.5.5zM12.75 8.75l2.5 2.5"
         strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"
