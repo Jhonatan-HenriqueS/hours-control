@@ -14,6 +14,8 @@
   --accent: #0f766e;
   --accent-strong: #115e59;
   --accent-soft: rgba(15, 118, 110, 0.12);
+  --popover-start: #ffffff;
+  --popover-end: #f2f6fc;
   --shadow-soft: 0 20px 60px rgba(15, 23, 42, 0.08);
   --shadow-card: 0 20px 48px rgba(15, 23, 42, 0.1);
 }
@@ -32,6 +34,8 @@
   --accent: #34d399;
   --accent-strong: #10b981;
   --accent-soft: rgba(52, 211, 153, 0.12);
+  --popover-start: #132235;
+  --popover-end: #0e1b2b;
   --shadow-soft: 0 22px 60px rgba(2, 6, 23, 0.4);
   --shadow-card: 0 18px 44px rgba(2, 6, 23, 0.35);
 }
@@ -79,6 +83,13 @@ textarea {
   background: linear-gradient(180deg, var(--panel-strong), rgba(255, 255, 255, 0.02));
   box-shadow: var(--shadow-card);
   backdrop-filter: blur(22px);
+}
+
+.surface-popover {
+  border: 1px solid var(--border-strong);
+  background: linear-gradient(180deg, var(--popover-start), var(--popover-end));
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+  backdrop-filter: blur(18px);
 }
 
 .input-shell {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 
 import { useAppContext } from "@/components/app/app-provider";
 import {
@@ -16,8 +16,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/ui/input-field";
-import { CheckIcon, PencilIcon, Trash2Icon } from "@/components/ui/icons";
-import { CATEGORY_COLOR_OPTIONS } from "@/lib/constants";
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  PencilIcon,
+  SlidersHorizontalIcon,
+  Trash2Icon,
+} from "@/components/ui/icons";
+import { CATEGORY_COLOR_OPTIONS, TASK_STATUS_OPTIONS } from "@/lib/constants";
 import {
   cn,
   getCategoryBadgeClasses,
@@ -26,7 +32,12 @@ import {
 } from "@/lib/utils";
 import type { CategoryColor, CategoryInput, TaskStatus } from "@/types/app";
 
-type CategoryFilter = "all" | TaskStatus;
+type CategoryFilter = TaskStatus;
+
+const FILTER_LABELS: Record<CategoryFilter, string> = {
+  Ocasional: "Ocasional",
+  Rotina: "Rotina",
+};
 
 const initialCategoryForm: CategoryInput = {
   name: "",
@@ -39,15 +50,13 @@ export default function CategoriesPage() {
     useAppContext();
   const [form, setForm] = useState<CategoryInput>(initialCategoryForm);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<CategoryFilter>("all");
+  const [filter, setFilter] = useState<CategoryFilter>("Rotina");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const filterRef = useRef<HTMLDivElement | null>(null);
 
   const filteredCategories = useMemo(() => {
-    if (filter === "all") {
-      return categories;
-    }
-
     return categories.filter((category) => category.categoryClass === filter);
   }, [categories, filter]);
 
@@ -64,6 +73,20 @@ export default function CategoriesPage() {
       ),
     [categories, editingId, form.categoryClass],
   );
+
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent) {
+      if (!filterRef.current?.contains(event.target as Node)) {
+        setIsFilterOpen(false);
+      }
+    }
+
+    window.addEventListener("mousedown", handlePointerDown);
+
+    return () => {
+      window.removeEventListener("mousedown", handlePointerDown);
+    };
+  }, []);
 
   function resetForm() {
     setForm(initialCategoryForm);
@@ -131,8 +154,7 @@ export default function CategoriesPage() {
             {editingId ? "Editar categoria" : "Nova categoria"}
           </h2>
           <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-            Organize as tarefas por classe e cor, sem repetir a mesma cor na
-            mesma classe.
+            Organize suas categorias por classe e cor.
           </p>
         </div>
 
@@ -256,7 +278,7 @@ export default function CategoriesPage() {
       </div>
 
       <div className="space-y-6">
-        <div className="surface-panel rounded-[34px] p-6">
+        <div className="surface-panel relative z-20 rounded-[34px] p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
@@ -266,26 +288,94 @@ export default function CategoriesPage() {
                 Categorias cadastradas
               </h3>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {(["all", "Ocasional", "Rotina"] as CategoryFilter[]).map(
-                (option) => (
-                  <Button
-                    key={option}
-                    type="button"
-                    variant={filter === option ? "primary" : "secondary"}
-                    onClick={() => setFilter(option)}
-                    className="min-w-[112px]"
-                  >
-                    {option === "all" ? "Todas" : option}
-                  </Button>
-                ),
-              )}
+            <div className="relative z-30" ref={filterRef}>
+              <Button
+                variant="secondary"
+                onClick={() => setIsFilterOpen((current) => !current)}
+                leadingIcon={<SlidersHorizontalIcon className="size-4" />}
+                className="w-full sm:min-w-[220px]"
+                trailingIcon={
+                  <ChevronDownIcon
+                    className={cn(
+                      "size-4 transition duration-200 ease-out",
+                      isFilterOpen ? "rotate-180" : "",
+                    )}
+                  />
+                }
+                aria-expanded={isFilterOpen}
+                aria-haspopup="dialog"
+              >
+                {FILTER_LABELS[filter]}
+              </Button>
+
+              {isFilterOpen ? (
+                <div className="surface-popover absolute right-0 top-[calc(100%+0.75rem)] z-50 w-full min-w-[280px] rounded-[28px] p-4 sm:w-[320px]">
+                  <div className="mb-4 flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
+                        Filtrar categorias
+                      </p>
+                      <h4 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
+                        Escolha uma classe
+                      </h4>
+                    </div>
+                    <span className="rounded-full border border-[var(--border)] bg-[var(--panel-soft)] px-3 py-1.5 text-xs font-medium text-[var(--text-muted)]">
+                      {filteredCategories.length} resultado
+                      {filteredCategories.length > 1 ? "s" : ""}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {TASK_STATUS_OPTIONS.map((option) => {
+                      const count = categories.filter(
+                        (category) => category.categoryClass === option,
+                      ).length;
+
+                      return (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => {
+                            setFilter(option);
+                            setIsFilterOpen(false);
+                          }}
+                          className={cn(
+                            "flex w-full items-center justify-between rounded-[22px] px-4 py-3 text-left transition duration-200 ease-out",
+                            filter === option
+                              ? "bg-[var(--accent-soft)] text-[var(--accent)] ring-1 ring-[var(--border)]"
+                              : "bg-[var(--panel-soft)] text-[var(--text-muted)] hover:bg-[var(--panel)] hover:text-[var(--text-primary)]",
+                          )}
+                        >
+                          <span className="flex items-center gap-3">
+                            <span
+                              className={cn(
+                                "grid size-8 place-items-center rounded-xl",
+                                filter === option
+                                  ? "bg-white/70 text-[var(--accent)] dark:bg-white/10"
+                                  : "bg-white/60 text-[var(--text-muted)] dark:bg-white/6",
+                              )}
+                            >
+                              <CheckIcon className="size-4" />
+                            </span>
+                            <span className="block text-sm font-semibold">
+                              {FILTER_LABELS[option]}
+                            </span>
+                          </span>
+                          <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-xs font-medium">
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
 
         {filteredCategories.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="relative z-0 grid gap-4 md:grid-cols-2">
             {filteredCategories.map((category) => {
               const colorOption = getCategoryColorOption(category.color);
 
