@@ -152,7 +152,9 @@ export function TaskModal() {
               label="Descrição"
               placeholder="Descreva o contexto desta tarefa..."
               value={form.description}
-              onChange={(event) => updateField("description", event.target.value)}
+              onChange={(event) =>
+                updateField("description", event.target.value)
+              }
             />
 
             <div className="grid gap-5 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
@@ -194,9 +196,7 @@ export function TaskModal() {
               >
                 <span className="flex items-center gap-2 text-left">
                   <CategoryIcon className="size-4" />
-                  {showCategories
-                    ? `Ocultar categorias ${form.status.toLowerCase()}`
-                    : `Mostrar categorias ${form.status.toLowerCase()}`}
+                  {showCategories ? `Ocultar categorias` : `Mostrar categorias`}
                 </span>
                 <ChevronDownIcon
                   className={cn(
@@ -210,7 +210,9 @@ export function TaskModal() {
                 availableCategories.length > 0 ? (
                   <div className="grid gap-3 sm:grid-cols-2">
                     {availableCategories.map((category) => {
-                      const colorOption = getCategoryColorOption(category.color);
+                      const colorOption = getCategoryColorOption(
+                        category.color,
+                      );
                       const isSelected = form.categoryId === category.id;
 
                       return (
@@ -244,7 +246,9 @@ export function TaskModal() {
                                 {colorOption?.label}
                               </span>
                             </span>
-                            {isSelected ? <CheckIcon className="size-4" /> : null}
+                            {isSelected ? (
+                              <CheckIcon className="size-4" />
+                            ) : null}
                           </span>
                         </button>
                       );
