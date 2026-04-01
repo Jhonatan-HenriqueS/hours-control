@@ -17,27 +17,23 @@ import {
   SlidersHorizontalIcon,
 } from "../ui/icons";
 
-type TaskFilter = "all" | TaskStatus;
+type TaskFilter = TaskStatus;
 
 const FILTER_LABELS: Record<TaskFilter, string> = {
-  all: "Todos os status",
   Ocasional: "Ocasional",
   Rotina: "Rotina",
 };
 
 const MyTodos = () => {
   const { openTaskModal, tasks } = useAppContext();
-  const [selectedFilter, setSelectedFilter] = useState<TaskFilter>("all");
+  const [selectedFilter, setSelectedFilter] = useState<TaskFilter>("Rotina");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement | null>(null);
   const orderedTasks = sortTasksByDate(tasks);
-  const filteredTasks = useMemo(() => {
-    if (selectedFilter === "all") {
-      return orderedTasks;
-    }
-
-    return orderedTasks.filter((task) => task.status === selectedFilter);
-  }, [orderedTasks, selectedFilter]);
+  const filteredTasks = useMemo(
+    () => orderedTasks.filter((task) => task.status === selectedFilter),
+    [orderedTasks, selectedFilter],
+  );
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -104,6 +100,11 @@ const MyTodos = () => {
                     <h4 className="mt-2 text-lg font-semibold tracking-[-0.03em] text-[var(--text-primary)]">
                       Escolha um status
                     </h4>
+                    <p className="mt-2 text-xs text-[var(--text-muted)]">
+                      {tasks.length === 0
+                        ? "Nenhuma tarefa cadastrada até agora."
+                        : `${tasks.length} tarefa${tasks.length > 1 ? "s" : ""} no total.`}
+                    </p>
                   </div>
                   <span className="rounded-full border border-[var(--border)] bg-[var(--panel-soft)] px-3 py-1.5 text-xs font-medium text-[var(--text-muted)]">
                     {filteredTasks.length} resultado
@@ -112,54 +113,49 @@ const MyTodos = () => {
                 </div>
 
                 <div className="space-y-2">
-                  {(["all", ...TASK_STATUS_OPTIONS] as TaskFilter[]).map(
-                    (option) => {
-                      const count =
-                        option === "all"
-                          ? orderedTasks.length
-                          : orderedTasks.filter(
-                              (task) => task.status === option,
-                            ).length;
+                  {TASK_STATUS_OPTIONS.map((option) => {
+                    const count = orderedTasks.filter(
+                      (task) => task.status === option,
+                    ).length;
 
-                      return (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => {
-                            setSelectedFilter(option);
-                            setIsFilterOpen(false);
-                          }}
-                          className={cn(
-                            "flex w-full items-center justify-between rounded-[22px] px-4 py-3 text-left transition duration-200 ease-out",
-                            selectedFilter === option
-                              ? "bg-[var(--accent-soft)] text-[var(--accent)] ring-1 ring-[var(--border)]"
-                              : "bg-[var(--panel-soft)] text-[var(--text-muted)] hover:bg-[var(--panel)] hover:text-[var(--text-primary)]",
-                          )}
-                        >
-                          <span className="flex items-center gap-3">
-                            <span
-                              className={cn(
-                                "grid size-8 place-items-center rounded-xl",
-                                selectedFilter === option
-                                  ? "bg-white/70 text-[var(--accent)] dark:bg-white/10"
-                                  : "bg-white/60 text-[var(--text-muted)] dark:bg-white/6",
-                              )}
-                            >
-                              <CheckIcon className="size-4" />
-                            </span>
-                            <span>
-                              <span className="block text-sm font-semibold">
-                                {FILTER_LABELS[option]}
-                              </span>
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => {
+                          setSelectedFilter(option);
+                          setIsFilterOpen(false);
+                        }}
+                        className={cn(
+                          "flex w-full items-center justify-between rounded-[22px] px-4 py-3 text-left transition duration-200 ease-out",
+                          selectedFilter === option
+                            ? "bg-[var(--accent-soft)] text-[var(--accent)] ring-1 ring-[var(--border)]"
+                            : "bg-[var(--panel-soft)] text-[var(--text-muted)] hover:bg-[var(--panel)] hover:text-[var(--text-primary)]",
+                        )}
+                      >
+                        <span className="flex items-center gap-3">
+                          <span
+                            className={cn(
+                              "grid size-8 place-items-center rounded-xl",
+                              selectedFilter === option
+                                ? "bg-white/70 text-[var(--accent)] dark:bg-white/10"
+                                : "bg-white/60 text-[var(--text-muted)] dark:bg-white/6",
+                            )}
+                          >
+                            <CheckIcon className="size-4" />
+                          </span>
+                          <span>
+                            <span className="block text-sm font-semibold">
+                              {FILTER_LABELS[option]}
                             </span>
                           </span>
-                          <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-xs font-medium">
-                            {count}
-                          </span>
-                        </button>
-                      );
-                    },
-                  )}
+                        </span>
+                        <span className="rounded-full border border-[var(--border)] px-2.5 py-1 text-xs font-medium">
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             ) : null}
@@ -186,11 +182,9 @@ const MyTodos = () => {
                 Nenhuma tarefa com este filtro
               </h4>
               <p className="mt-3 text-sm leading-7 text-[var(--text-muted)]">
-                {selectedFilter === "all"
-                  ? "Adicione uma nova tarefa para começar a preencher a lista."
-                  : `No momento não existem tarefas com o status ${FILTER_LABELS[
-                      selectedFilter
-                    ].toLowerCase()}.`}
+                {`No momento não existem tarefas com o status ${FILTER_LABELS[
+                  selectedFilter
+                ].toLowerCase()}.`}
               </p>
             </div>
           </div>

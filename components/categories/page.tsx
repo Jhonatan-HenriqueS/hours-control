@@ -55,6 +55,7 @@ export default function CategoriesPage() {
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const filterRef = useRef<HTMLDivElement | null>(null);
+  const formPanelRef = useRef<HTMLDivElement | null>(null);
 
   const filteredCategories = useMemo(() => {
     return categories.filter((category) => category.categoryClass === filter);
@@ -130,6 +131,14 @@ export default function CategoriesPage() {
       categoryClass: category.categoryClass,
       color: category.color,
     });
+
+    requestAnimationFrame(() => {
+      formPanelRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      formPanelRef.current?.focus({ preventScroll: true });
+    });
   }
 
   function handleDelete(categoryId: string) {
@@ -145,7 +154,11 @@ export default function CategoriesPage() {
 
   return (
     <section className="grid gap-6 xl:grid-cols-[420px_minmax(0,1fr)]">
-      <div className="surface-panel rounded-[34px] p-6 sm:p-8">
+      <div
+        ref={formPanelRef}
+        tabIndex={-1}
+        className="surface-panel rounded-[34px] p-6 outline-none sm:p-8"
+      >
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">
             Categorias
