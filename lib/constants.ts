@@ -104,13 +104,13 @@ export const MENU_ITEMS: MenuItem[] = [
     icon: "listChecks",
   },
   {
-    id: "charts",
-    label: "Gráficos",
-    icon: "chart",
-  },
-  {
     id: "categories",
     label: "Categorias",
     icon: "category",
+  },
+  {
+    id: "charts",
+    label: "Gráficos",
+    icon: "chart",
   },
 ];
