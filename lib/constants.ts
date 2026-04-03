@@ -1,4 +1,9 @@
-import type { CategoryColor, MenuItem, TaskStatus } from "@/types/app";
+import type {
+  CategoryColor,
+  MenuItem,
+  TaskStatus,
+  WeekdayId,
+} from "@/types/app";
 
 export const APP_NAME = "Lumen Tasks";
 
@@ -13,6 +18,21 @@ export const STORAGE_KEYS = {
 } as const;
 
 export const TASK_STATUS_OPTIONS: TaskStatus[] = ["Ocasional", "Rotina"];
+
+export const WEEKDAY_OPTIONS: Array<{
+  id: WeekdayId;
+  shortLabel: string;
+  fullLabel: string;
+  index: number;
+}> = [
+  { id: "sunday", shortLabel: "Dom", fullLabel: "Domingo", index: 0 },
+  { id: "monday", shortLabel: "Seg", fullLabel: "Segunda", index: 1 },
+  { id: "tuesday", shortLabel: "Ter", fullLabel: "Terça", index: 2 },
+  { id: "wednesday", shortLabel: "Qua", fullLabel: "Quarta", index: 3 },
+  { id: "thursday", shortLabel: "Qui", fullLabel: "Quinta", index: 4 },
+  { id: "friday", shortLabel: "Sex", fullLabel: "Sexta", index: 5 },
+  { id: "saturday", shortLabel: "Sab", fullLabel: "Sábado", index: 6 },
+];
 
 export const CATEGORY_COLOR_OPTIONS: Array<{
   id: CategoryColor;

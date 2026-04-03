@@ -8,8 +8,8 @@ import {
   type ReactNode,
 } from "react";
 
-import { MENU_ITEMS, STORAGE_KEYS } from "@/lib/constants";
-import { createId } from "@/lib/utils";
+import { MENU_ITEMS, STORAGE_KEYS, WEEKDAY_OPTIONS } from "@/lib/constants";
+import { createId, sortWeekdays } from "@/lib/utils";
 import { usePersistentState } from "@/hooks/use-persistent-state";
 import type {
   AppView,
@@ -213,11 +213,26 @@ export function AppProvider({ children }: AppProviderProps) {
   function addTask(task: TaskInput): AuthResult {
     const title = task.title.trim();
     const description = task.description.trim();
+    const sortedRoutineDays = sortWeekdays(task.routineDays);
 
-    if (!title || !description || !task.dueDate || !task.categoryId) {
+    if (!title || !description || !task.categoryId) {
       return {
         ok: false,
-        message: "Preencha título, descrição, prazo e categoria.",
+        message: "Preencha título, descrição e categoria.",
+      };
+    }
+
+    if (task.status === "Ocasional" && !task.dueDate) {
+      return {
+        ok: false,
+        message: "Selecione a data de prazo para a tarefa ocasional.",
+      };
+    }
+
+    if (task.status === "Rotina" && sortedRoutineDays.length === 0) {
+      return {
+        ok: false,
+        message: "Selecione pelo menos um dia da semana para a rotina.",
       };
     }
 
@@ -238,8 +253,14 @@ export function AppProvider({ children }: AppProviderProps) {
       id: createId(),
       title,
       description,
-      dueDate: task.dueDate,
+      dueDate: task.status === "Ocasional" ? task.dueDate : "",
       status: task.status,
+      routineDays:
+        task.status === "Rotina"
+          ? WEEKDAY_OPTIONS.filter((option) =>
+              sortedRoutineDays.includes(option.id),
+            ).map((option) => option.id)
+          : [],
       categoryId: selectedCategory.id,
       categoryName: selectedCategory.name,
       categoryColor: selectedCategory.color,

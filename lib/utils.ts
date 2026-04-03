@@ -1,5 +1,9 @@
-import { CATEGORY_COLOR_OPTIONS } from "@/lib/constants";
-import type { CategoryColor, TaskStatus } from "@/types/app";
+import { CATEGORY_COLOR_OPTIONS, WEEKDAY_OPTIONS } from "@/lib/constants";
+import type {
+  CategoryColor,
+  TaskStatus,
+  WeekdayId,
+} from "@/types/app";
 
 export function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -24,34 +28,86 @@ export function formatTaskDate(value: string) {
     return "Data indefinida";
   }
 
+  return formatDateLabel(date);
+}
+
+export function formatDateLabel(value: Date) {
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  }).format(date);
+  }).format(value);
 }
 
-export function getRelativeDueLabel(value: string) {
-  const targetDate = new Date(value);
+function getStartOfDate(value: Date) {
+  return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+}
 
-  if (Number.isNaN(targetDate.getTime())) {
+function getDiffInDays(targetDate: Date, baseDate = new Date()) {
+  const startOfToday = getStartOfDate(baseDate);
+  const startOfTarget = getStartOfDate(targetDate);
+
+  return Math.round(
+    (startOfTarget.getTime() - startOfToday.getTime()) / 86_400_000,
+  );
+}
+
+export function sortWeekdays(days: WeekdayId[]) {
+  return [...days].sort((left, right) => {
+    const leftIndex =
+      WEEKDAY_OPTIONS.find((option) => option.id === left)?.index ?? 99;
+    const rightIndex =
+      WEEKDAY_OPTIONS.find((option) => option.id === right)?.index ?? 99;
+
+    return leftIndex - rightIndex;
+  });
+}
+
+export function getWeekdaysLabel(days?: WeekdayId[] | null) {
+  if (!days?.length) {
+    return "Nenhum dia selecionado";
+  }
+
+  return sortWeekdays(days)
+    .map(
+      (day) =>
+        WEEKDAY_OPTIONS.find((option) => option.id === day)?.shortLabel ?? day,
+    )
+    .join(", ");
+}
+
+export function getNextRoutineDate(
+  days?: WeekdayId[] | null,
+  baseDate = new Date(),
+) {
+  if (!days?.length) {
+    return null;
+  }
+
+  const dayIndexes = sortWeekdays(days).map(
+    (day) => WEEKDAY_OPTIONS.find((option) => option.id === day)?.index ?? -1,
+  );
+  const currentDay = baseDate.getDay();
+  const nextOffset = dayIndexes
+    .map((index) => (index - currentDay + 7) % 7)
+    .sort((left, right) => left - right)[0];
+
+  if (nextOffset === undefined || nextOffset < 0) {
+    return null;
+  }
+
+  const nextDate = getStartOfDate(baseDate);
+  nextDate.setDate(nextDate.getDate() + nextOffset);
+
+  return nextDate;
+}
+
+export function getRelativeDateLabel(targetDate?: Date | null) {
+  if (!targetDate) {
     return "Sem prazo definido";
   }
 
-  const today = new Date();
-  const startOfToday = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
-  );
-  const startOfTarget = new Date(
-    targetDate.getFullYear(),
-    targetDate.getMonth(),
-    targetDate.getDate(),
-  );
-  const diffInDays = Math.round(
-    (startOfTarget.getTime() - startOfToday.getTime()) / 86_400_000,
-  );
+  const diffInDays = getDiffInDays(targetDate);
 
   if (diffInDays === 0) {
     return "Entrega hoje";
@@ -72,6 +128,16 @@ export function getRelativeDueLabel(value: string) {
   return `Prazo em ${diffInDays} dias`;
 }
 
+export function getRelativeDueLabel(value: string) {
+  const targetDate = new Date(value);
+
+  if (Number.isNaN(targetDate.getTime())) {
+    return "Sem prazo definido";
+  }
+
+  return getRelativeDateLabel(targetDate);
+}
+
 export function getDueState(value: string) {
   const targetDate = new Date(value);
 
@@ -79,20 +145,7 @@ export function getDueState(value: string) {
     return "none" as const;
   }
 
-  const today = new Date();
-  const startOfToday = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
-  );
-  const startOfTarget = new Date(
-    targetDate.getFullYear(),
-    targetDate.getMonth(),
-    targetDate.getDate(),
-  );
-  const diffInDays = Math.round(
-    (startOfTarget.getTime() - startOfToday.getTime()) / 86_400_000,
-  );
+  const diffInDays = getDiffInDays(targetDate);
 
   if (diffInDays < 0) {
     return "overdue" as const;
@@ -105,8 +158,72 @@ export function getDueState(value: string) {
   return "upcoming" as const;
 }
 
-export function getNextTaskCardClasses(value?: string) {
-  const dueState = value ? getDueState(value) : "none";
+function getDueStateFromDate(targetDate?: Date | null) {
+  if (!targetDate) {
+    return "none" as const;
+  }
+
+  const diffInDays = getDiffInDays(targetDate);
+
+  if (diffInDays < 0) {
+    return "overdue" as const;
+  }
+
+  if (diffInDays === 0) {
+    return "today" as const;
+  }
+
+  return "upcoming" as const;
+}
+
+type SchedulableTask = {
+  dueDate: string;
+  status: TaskStatus;
+  routineDays?: WeekdayId[];
+  createdAt: string;
+};
+
+export function getTaskNextDueDate(task?: Partial<SchedulableTask> | null) {
+  if (!task) {
+    return null;
+  }
+
+  if (task.status === "Rotina") {
+    return getNextRoutineDate(task.routineDays);
+  }
+
+  const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+
+  if (!dueDate || Number.isNaN(dueDate.getTime())) {
+    return null;
+  }
+
+  return dueDate;
+}
+
+export function getTaskPrimaryScheduleLabel(task: {
+  dueDate: string;
+  status: TaskStatus;
+  routineDays?: WeekdayId[];
+}) {
+  if (task.status === "Rotina") {
+    return getWeekdaysLabel(task.routineDays);
+  }
+
+  return formatTaskDate(task.dueDate);
+}
+
+export function getTaskRelativeScheduleLabel(task: {
+  dueDate: string;
+  status: TaskStatus;
+  routineDays?: WeekdayId[];
+}) {
+  return getRelativeDateLabel(getTaskNextDueDate(task));
+}
+
+export function getNextTaskCardClasses(task?: Partial<SchedulableTask> | null) {
+  const nextDueDate = getTaskNextDueDate(task);
+  const dueState = getDueStateFromDate(nextDueDate);
 
   if (dueState === "overdue") {
     return "border-rose-200/90 bg-[linear-gradient(135deg,rgba(255,241,242,0.98),rgba(255,228,230,0.96),rgba(254,205,211,0.92))] shadow-[0_4px_32px_rgba(244,63,94,0.12)] dark:border-rose-800/60 dark:bg-[linear-gradient(135deg,rgba(76,5,25,0.42),rgba(127,29,29,0.34),rgba(136,19,55,0.28))] dark:shadow-[0_4px_32px_rgba(225,29,72,0.18)]";
@@ -123,36 +240,27 @@ export function getTodayInputValue() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function getTaskClosestToToday<
-  T extends { dueDate: string; createdAt: string },
->(tasks: T[]) {
-  const today = new Date();
-  const startOfToday = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate(),
-  );
-
+export function getTaskClosestToToday<T extends SchedulableTask>(tasks: T[]) {
   return [...tasks].sort((left, right) => {
-    const leftDate = new Date(left.dueDate);
-    const rightDate = new Date(right.dueDate);
-    const startOfLeft = new Date(
-      leftDate.getFullYear(),
-      leftDate.getMonth(),
-      leftDate.getDate(),
-    );
-    const startOfRight = new Date(
-      rightDate.getFullYear(),
-      rightDate.getMonth(),
-      rightDate.getDate(),
-    );
+    const leftDate = getTaskNextDueDate(left);
+    const rightDate = getTaskNextDueDate(right);
 
-    const leftDiffInDays = Math.round(
-      (startOfLeft.getTime() - startOfToday.getTime()) / 86_400_000,
-    );
-    const rightDiffInDays = Math.round(
-      (startOfRight.getTime() - startOfToday.getTime()) / 86_400_000,
-    );
+    if (!leftDate && !rightDate) {
+      return (
+        new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      );
+    }
+
+    if (!leftDate) {
+      return 1;
+    }
+
+    if (!rightDate) {
+      return -1;
+    }
+
+    const leftDiffInDays = getDiffInDays(leftDate);
+    const rightDiffInDays = getDiffInDays(rightDate);
     const leftDistance = Math.abs(leftDiffInDays);
     const rightDistance = Math.abs(rightDiffInDays);
 
@@ -170,12 +278,11 @@ export function getTaskClosestToToday<
   })[0];
 }
 
-export function sortTasksByDate<
-  T extends { dueDate: string; createdAt: string },
->(tasks: T[]) {
+export function sortTasksByDate<T extends SchedulableTask>(tasks: T[]) {
   return [...tasks].sort((left, right) => {
-    const leftTime = new Date(left.dueDate).getTime();
-    const rightTime = new Date(right.dueDate).getTime();
+    const leftTime = getTaskNextDueDate(left)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+    const rightTime =
+      getTaskNextDueDate(right)?.getTime() ?? Number.MAX_SAFE_INTEGER;
 
     if (leftTime === rightTime) {
       return (

@@ -8,10 +8,10 @@ import {
 } from "@/components/ui/icons";
 import {
   cn,
+  getTaskPrimaryScheduleLabel,
+  getTaskRelativeScheduleLabel,
   getCategoryBadgeClasses,
   getCategoryColorOption,
-  formatTaskDate,
-  getRelativeDueLabel,
   getStatusClasses,
 } from "@/lib/utils";
 import type { Task } from "@/types/app";
@@ -79,10 +79,10 @@ export function TaskCard({ task }: TaskCardProps) {
           <div className="flex items-center gap-2">
             <CalendarIcon className="size-4" />
             <span className="font-medium text-[var(--text-primary)]">
-              Prazo
+              {task.status === "Rotina" ? "Dias da rotina" : "Prazo"}
             </span>
           </div>
-          <p className="mt-2">{formatTaskDate(task.dueDate)}</p>
+          <p className="mt-2">{getTaskPrimaryScheduleLabel(task)}</p>
         </div>
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel-soft)] px-4 py-3">
           <div className="flex items-center gap-2">
@@ -91,7 +91,7 @@ export function TaskCard({ task }: TaskCardProps) {
               Situação
             </span>
           </div>
-          <p className="mt-2">{getRelativeDueLabel(task.dueDate)}</p>
+          <p className="mt-2">{getTaskRelativeScheduleLabel(task)}</p>
         </div>
         <div className="flex items-center justify-center w-full sm:col-span-2">
           <Button

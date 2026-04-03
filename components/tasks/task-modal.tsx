@@ -12,14 +12,16 @@ import {
   XIcon,
 } from "@/components/ui/icons";
 import { InputField, TextareaField } from "@/components/ui/input-field";
-import { TASK_STATUS_OPTIONS } from "@/lib/constants";
+import { TASK_STATUS_OPTIONS, WEEKDAY_OPTIONS } from "@/lib/constants";
 import {
   cn,
   getCategoryBadgeClasses,
   getCategoryColorOption,
   getTodayInputValue,
 } from "@/lib/utils";
-import type { TaskInput, TaskStatus } from "@/types/app";
+import type { TaskInput, TaskStatus, WeekdayId } from "@/types/app";
+
+type TaskField = "title" | "description" | "dueDate" | "status" | "categoryId";
 
 const STATUS_HINTS: Record<TaskStatus, string> = {
   Ocasional:
@@ -34,6 +36,7 @@ function createInitialTaskForm(): TaskInput {
     description: "",
     dueDate: getTodayInputValue(),
     status: "Rotina",
+    routineDays: [],
     categoryId: "",
   };
 }
@@ -62,7 +65,7 @@ export function TaskModal() {
     };
   }, [closeTaskModal]);
 
-  function updateField(field: keyof TaskInput, value: string) {
+  function updateField(field: TaskField, value: string) {
     setForm((current) => ({
       ...current,
       [field]: value,
@@ -70,20 +73,34 @@ export function TaskModal() {
     }));
   }
 
+  function toggleRoutineDay(day: WeekdayId) {
+    setForm((current) => ({
+      ...current,
+      routineDays: current.routineDays.includes(day)
+        ? current.routineDays.filter((item) => item !== day)
+        : [...current.routineDays, day],
+    }));
+  }
+
   function handleSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorMessage(null);
 
-    if (
-      !form.title.trim() ||
-      !form.description.trim() ||
-      !form.dueDate ||
-      !form.categoryId
-    ) {
+    if (!form.title.trim() || !form.description.trim() || !form.categoryId) {
       if (!form.categoryId) {
         setShowCategories(true);
       }
-      setErrorMessage("Preencha título, descrição, prazo e categoria.");
+      setErrorMessage("Preencha título, descrição e categoria.");
+      return;
+    }
+
+    if (form.status === "Ocasional" && !form.dueDate) {
+      setErrorMessage("Selecione a data de prazo da tarefa ocasional.");
+      return;
+    }
+
+    if (form.status === "Rotina" && form.routineDays.length === 0) {
+      setErrorMessage("Selecione pelo menos um dia da semana para a rotina.");
       return;
     }
 
@@ -157,14 +174,25 @@ export function TaskModal() {
               }
             />
 
-            <div className="grid gap-5 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-              <InputField
-                label="Data de prazo"
-                type="date"
-                icon={<CalendarIcon />}
-                value={form.dueDate}
-                onChange={(event) => updateField("dueDate", event.target.value)}
-              />
+            <div
+              className={cn(
+                "grid gap-5",
+                form.status === "Ocasional"
+                  ? "md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
+                  : "",
+              )}
+            >
+              {form.status === "Ocasional" ? (
+                <InputField
+                  label="Data de prazo"
+                  type="date"
+                  icon={<CalendarIcon />}
+                  value={form.dueDate}
+                  onChange={(event) =>
+                    updateField("dueDate", event.target.value)
+                  }
+                />
+              ) : null}
 
               <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium text-[var(--text-primary)]">
@@ -185,6 +213,45 @@ export function TaskModal() {
                 </span>
               </div>
             </div>
+
+            {form.status === "Rotina" ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-medium text-[var(--text-primary)]">
+                    Dias da rotina
+                  </span>
+                  <span className="text-xs text-[var(--text-muted)]">
+                    Selecione um ou mais dias
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-4 gap-3 sm:grid-cols-7">
+                  {WEEKDAY_OPTIONS.map((day) => {
+                    const isSelected = form.routineDays.includes(day.id);
+
+                    return (
+                      <button
+                        key={day.id}
+                        type="button"
+                        onClick={() => toggleRoutineDay(day.id)}
+                        className={cn(
+                          "rounded-[20px] border px-3 py-3 text-center transition duration-200 ease-out",
+                          isSelected
+                            ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)] shadow-[0_12px_32px_rgba(15,118,110,0.14)]"
+                            : "border-[var(--border)] bg-[var(--panel-soft)] text-[var(--text-muted)] hover:bg-[var(--panel)] hover:text-[var(--text-primary)]",
+                        )}
+                        aria-pressed={isSelected}
+                        title={day.fullLabel}
+                      >
+                        <span className="block text-sm font-semibold">
+                          {day.shortLabel}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
 
             <div className="space-y-3">
               <Button

@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon, PlusIcon } from "@/components/ui/icons";
 import {
   cn,
-  formatTaskDate,
+  formatDateLabel,
   getNextTaskCardClasses,
-  getRelativeDueLabel,
+  getRelativeDateLabel,
+  getTaskNextDueDate,
   getTaskClosestToToday,
 } from "@/lib/utils";
 
@@ -61,7 +62,7 @@ export function DashboardView() {
             "rounded-[28px] border p-5 backdrop-blur-[22px]",
             allTasksCompleted
               ? "border-emerald-200/90 bg-[linear-gradient(135deg,rgba(236,253,245,0.98),rgba(220,252,231,0.96),rgba(209,250,229,0.92))] shadow-[0_18px_40px_rgba(74,222,128,0.12)] dark:border-emerald-800/60 dark:bg-[linear-gradient(135deg,rgba(6,78,59,0.42),rgba(6,95,70,0.34),rgba(20,83,45,0.28))] dark:shadow-[0_18px_40px_rgba(5,150,105,0.18)]"
-              : getNextTaskCardClasses(nextTask?.dueDate),
+              : getNextTaskCardClasses(nextTask),
           )}
         >
           <p className="text-xs uppercase tracking-[0.22em] text-[var(--text-muted)]">
@@ -73,11 +74,11 @@ export function DashboardView() {
                 {nextTask.title}
               </h3>
               <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-                {getRelativeDueLabel(nextTask.dueDate)}
+                {getRelativeDateLabel(getTaskNextDueDate(nextTask))}
               </p>
               <div className="mt-5 flex items-center gap-3 text-sm text-[var(--text-muted)]">
                 <CalendarIcon className="size-4" />
-                {formatTaskDate(nextTask.dueDate)}
+                {formatDateLabel(getTaskNextDueDate(nextTask) ?? new Date())}
               </div>
             </>
           ) : (

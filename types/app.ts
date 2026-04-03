@@ -4,6 +4,15 @@ export type AuthMode = "login" | "register";
 
 export type TaskStatus = "Ocasional" | "Rotina";
 
+export type WeekdayId =
+  | "sunday"
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday";
+
 export type CategoryColor =
   | "violet"
   | "blue"
@@ -37,6 +46,7 @@ export interface Task {
   description: string;
   dueDate: string;
   status: TaskStatus;
+  routineDays?: WeekdayId[];
   categoryId?: string | null;
   categoryName?: string | null;
   categoryColor?: CategoryColor | null;
@@ -50,6 +60,7 @@ export interface TaskInput {
   description: string;
   dueDate: string;
   status: TaskStatus;
+  routineDays: WeekdayId[];
   categoryId: string;
 }
 
