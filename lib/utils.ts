@@ -102,6 +102,22 @@ export function getNextRoutineDate(
   return nextDate;
 }
 
+export function getNextRoutineWeekdayId(
+  days?: WeekdayId[] | null,
+  baseDate = new Date(),
+) {
+  const nextDate = getNextRoutineDate(days, baseDate);
+
+  if (!nextDate) {
+    return null;
+  }
+
+  return (
+    WEEKDAY_OPTIONS.find((option) => option.index === nextDate.getDay())?.id ??
+    null
+  );
+}
+
 export function getRelativeDateLabel(targetDate?: Date | null) {
   if (!targetDate) {
     return "Sem prazo definido";

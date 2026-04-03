@@ -1,5 +1,6 @@
 import { useAppContext } from "@/components/app/app-provider";
 import { Button } from "@/components/ui/button";
+import { WEEKDAY_OPTIONS } from "@/lib/constants";
 import {
   CalendarIcon,
   CheckIcon,
@@ -8,8 +9,10 @@ import {
 } from "@/components/ui/icons";
 import {
   cn,
-  getTaskPrimaryScheduleLabel,
+  formatTaskDate,
   getTaskRelativeScheduleLabel,
+  getNextRoutineWeekdayId,
+  sortWeekdays,
   getCategoryBadgeClasses,
   getCategoryColorOption,
   getStatusClasses,
@@ -24,6 +27,8 @@ export function TaskCard({ task }: TaskCardProps) {
   const { completeTask, deleteTask } = useAppContext();
   const isCompleted = Boolean(task.isCompleted);
   const categoryColor = getCategoryColorOption(task.categoryColor);
+  const nextRoutineDay = getNextRoutineWeekdayId(task.routineDays);
+  const routineDays = sortWeekdays(task.routineDays ?? []);
 
   return (
     <article
@@ -82,7 +87,41 @@ export function TaskCard({ task }: TaskCardProps) {
               {task.status === "Rotina" ? "Dias da rotina" : "Prazo"}
             </span>
           </div>
-          <p className="mt-2">{getTaskPrimaryScheduleLabel(task)}</p>
+          {task.status === "Rotina" ? (
+            routineDays.length > 0 ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {routineDays.map((day) => {
+                  const option = WEEKDAY_OPTIONS.find(
+                    (weekday) => weekday.id === day,
+                  );
+                  const isActiveDay = day === nextRoutineDay;
+
+                  return (
+                    <span
+                      key={day}
+                      className={cn(
+                        "inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-semibold transition duration-200 ease-out",
+                        isActiveDay
+                          ? "border-amber-300/80 bg-[#FFF3B0] text-amber-900 shadow-[0_0_8px_rgba(255,215,0,0.4)] dark:border-amber-500/50 dark:bg-amber-300/20 dark:text-amber-100"
+                          : "border-[var(--border)] bg-white/60 text-[var(--text-muted)] dark:bg-white/6",
+                      )}
+                      title={
+                        isActiveDay
+                          ? `${option?.fullLabel} é o próximo prazo`
+                          : option?.fullLabel
+                      }
+                    >
+                      {option?.shortLabel ?? day}
+                    </span>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="mt-2">Nenhum dia selecionado</p>
+            )
+          ) : (
+            <p className="mt-2">{formatTaskDate(task.dueDate)}</p>
+          )}
         </div>
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel-soft)] px-4 py-3">
           <div className="flex items-center gap-2">
