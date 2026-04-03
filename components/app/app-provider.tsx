@@ -9,7 +9,11 @@ import {
 } from "react";
 
 import { MENU_ITEMS, STORAGE_KEYS, WEEKDAY_OPTIONS } from "@/lib/constants";
-import { createId, sortWeekdays } from "@/lib/utils";
+import {
+  createId,
+  shouldResetRoutineTask,
+  sortWeekdays,
+} from "@/lib/utils";
 import { usePersistentState } from "@/hooks/use-persistent-state";
 import type {
   AppView,
@@ -90,6 +94,7 @@ export function AppProvider({ children }: AppProviderProps) {
     usePersistentState<boolean>(STORAGE_KEYS.sidebar, false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [, setDayVersion] = useState(() => Date.now());
 
   const isReady =
     themeReady &&
@@ -115,6 +120,55 @@ export function AppProvider({ children }: AppProviderProps) {
       document.body.style.overflow = "";
     };
   }, [isMobileMenuOpen, isTaskModalOpen]);
+
+  useEffect(() => {
+    if (!tasksReady) {
+      return;
+    }
+
+    function syncRoutineCycles(now = new Date()) {
+      setTasks((currentTasks) => {
+        let hasChanges = false;
+
+        const nextTasks = currentTasks.map((task) => {
+          if (!shouldResetRoutineTask(task, now)) {
+            return task;
+          }
+
+          hasChanges = true;
+
+          return {
+            ...task,
+            isCompleted: false,
+            completedAt: null,
+          };
+        });
+
+        return hasChanges ? nextTasks : currentTasks;
+      });
+    }
+
+    let lastDayStamp = new Date().toDateString();
+
+    syncRoutineCycles(new Date());
+
+    const intervalId = window.setInterval(() => {
+      const now = new Date();
+      const currentDayStamp = now.toDateString();
+
+      if (currentDayStamp === lastDayStamp) {
+        return;
+      }
+
+      lastDayStamp = currentDayStamp;
+      syncRoutineCycles(now);
+      setDayVersion(now.getTime());
+    }, 60_000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [setTasks, tasksReady]);
 
   function login(payload: AuthPayload): AuthResult {
     const name = payload.name.trim();

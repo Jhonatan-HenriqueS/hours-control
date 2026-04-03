@@ -183,6 +183,11 @@ type SchedulableTask = {
   createdAt: string;
 };
 
+type RoutineResettableTask = SchedulableTask & {
+  isCompleted?: boolean;
+  completedAt?: string | null;
+};
+
 export function getTaskNextDueDate(task?: Partial<SchedulableTask> | null) {
   if (!task) {
     return null;
@@ -199,6 +204,50 @@ export function getTaskNextDueDate(task?: Partial<SchedulableTask> | null) {
   }
 
   return dueDate;
+}
+
+export function shouldResetRoutineTask(
+  task: Partial<RoutineResettableTask> | null | undefined,
+  currentDate = new Date(),
+) {
+  if (
+    !task ||
+    task.status !== "Rotina" ||
+    !task.isCompleted ||
+    !task.routineDays?.length
+  ) {
+    return false;
+  }
+
+  const referenceValue = task.completedAt ?? task.createdAt;
+
+  if (!referenceValue) {
+    return false;
+  }
+
+  const referenceDate = new Date(referenceValue);
+
+  if (Number.isNaN(referenceDate.getTime())) {
+    return false;
+  }
+
+  const currentDay = getStartOfDate(currentDate);
+
+  for (
+    const cursor = getStartOfDate(referenceDate);
+    cursor.getTime() < currentDay.getTime();
+    cursor.setDate(cursor.getDate() + 1)
+  ) {
+    const weekday = WEEKDAY_OPTIONS.find(
+      (option) => option.index === cursor.getDay(),
+    )?.id;
+
+    if (weekday && task.routineDays.includes(weekday)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 export function getTaskPrimaryScheduleLabel(task: {
