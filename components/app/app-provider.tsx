@@ -11,6 +11,7 @@ import {
 import { MENU_ITEMS, STORAGE_KEYS, WEEKDAY_OPTIONS } from "@/lib/constants";
 import {
   createId,
+  isValidDurationValue,
   shouldResetRoutineTask,
   sortWeekdays,
 } from "@/lib/utils";
@@ -267,12 +268,20 @@ export function AppProvider({ children }: AppProviderProps) {
   function addTask(task: TaskInput): AuthResult {
     const title = task.title.trim();
     const description = task.description.trim();
+    const estimatedDuration = task.estimatedDuration.trim();
     const sortedRoutineDays = sortWeekdays(task.routineDays);
 
-    if (!title || !description || !task.categoryId) {
+    if (!title || !description || !task.categoryId || !estimatedDuration) {
       return {
         ok: false,
-        message: "Preencha título, descrição e categoria.",
+        message: "Preencha título, descrição, duração e categoria.",
+      };
+    }
+
+    if (!isValidDurationValue(estimatedDuration)) {
+      return {
+        ok: false,
+        message: "Informe a duração no formato hh:mm.",
       };
     }
 
@@ -308,6 +317,7 @@ export function AppProvider({ children }: AppProviderProps) {
       title,
       description,
       dueDate: task.status === "Ocasional" ? task.dueDate : "",
+      estimatedDuration,
       status: task.status,
       routineDays:
         task.status === "Rotina"

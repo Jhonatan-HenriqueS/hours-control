@@ -9,6 +9,7 @@ import {
   CategoryIcon,
   CheckIcon,
   ChevronDownIcon,
+  ClockIcon,
   XIcon,
 } from "@/components/ui/icons";
 import { InputField, TextareaField } from "@/components/ui/input-field";
@@ -18,23 +19,24 @@ import {
   getCategoryBadgeClasses,
   getCategoryColorOption,
   getTodayInputValue,
+  isValidDurationValue,
 } from "@/lib/utils";
 import type { TaskInput, TaskStatus, WeekdayId } from "@/types/app";
 
-type TaskField = "title" | "description" | "dueDate" | "status" | "categoryId";
-
-const STATUS_HINTS: Record<TaskStatus, string> = {
-  Ocasional:
-    "Use esta opção quando a tarefa surgir de forma pontual ou inesperada.",
-  Rotina:
-    "Use esta opção para atividades que fazem parte da sua rotina diária ou recorrente.",
-};
+type TaskField =
+  | "title"
+  | "description"
+  | "dueDate"
+  | "estimatedDuration"
+  | "status"
+  | "categoryId";
 
 function createInitialTaskForm(): TaskInput {
   return {
     title: "",
     description: "",
     dueDate: getTodayInputValue(),
+    estimatedDuration: "",
     status: "Rotina",
     routineDays: [],
     categoryId: "",
@@ -86,11 +88,21 @@ export function TaskModal() {
     event.preventDefault();
     setErrorMessage(null);
 
-    if (!form.title.trim() || !form.description.trim() || !form.categoryId) {
+    if (
+      !form.title.trim() ||
+      !form.description.trim() ||
+      !form.estimatedDuration.trim() ||
+      !form.categoryId
+    ) {
       if (!form.categoryId) {
         setShowCategories(true);
       }
-      setErrorMessage("Preencha título, descrição e categoria.");
+      setErrorMessage("Preencha título, descrição, duração e categoria.");
+      return;
+    }
+
+    if (!isValidDurationValue(form.estimatedDuration.trim())) {
+      setErrorMessage("Informe a duração no formato hh:mm.");
       return;
     }
 
@@ -174,15 +186,8 @@ export function TaskModal() {
               }
             />
 
-            <div
-              className={cn(
-                "grid gap-5",
-                form.status === "Ocasional"
-                  ? "md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
-                  : "",
-              )}
-            >
-              {form.status === "Ocasional" ? (
+            {form.status === "Ocasional" ? (
+              <div className="grid gap-5 md:grid-cols-2">
                 <InputField
                   label="Data de prazo"
                   type="date"
@@ -192,8 +197,20 @@ export function TaskModal() {
                     updateField("dueDate", event.target.value)
                   }
                 />
-              ) : null}
+                <InputField
+                  label="Duração estimada"
+                  type="time"
+                  step={60}
+                  icon={<ClockIcon />}
+                  value={form.estimatedDuration}
+                  onChange={(event) =>
+                    updateField("estimatedDuration", event.target.value)
+                  }
+                />
+              </div>
+            ) : null}
 
+            {form.status === "Ocasional" ? (
               <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium text-[var(--text-primary)]">
                   Status
@@ -208,20 +225,41 @@ export function TaskModal() {
                     />
                   ))}
                 </div>
-                <span className="mt-3 text-center text-xs">
-                  {STATUS_HINTS[form.status]}
-                </span>
               </div>
-            </div>
+            ) : null}
 
             {form.status === "Rotina" ? (
-              <div className="space-y-3">
+              <div className="space-y-5">
+                <InputField
+                  label="Duração estimada"
+                  type="time"
+                  step={60}
+                  icon={<ClockIcon />}
+                  value={form.estimatedDuration}
+                  onChange={(event) =>
+                    updateField("estimatedDuration", event.target.value)
+                  }
+                />
+
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm font-medium text-[var(--text-primary)]">
+                    Status
+                  </span>
+                  <div className="grid grid-cols-2 gap-3">
+                    {TASK_STATUS_OPTIONS.map((status) => (
+                      <StatusOption
+                        key={status}
+                        status={status}
+                        active={form.status === status}
+                        onClick={() => updateField("status", status)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm font-medium text-[var(--text-primary)]">
                     Dias da rotina
-                  </span>
-                  <span className="text-xs text-[var(--text-muted)]">
-                    Selecione um ou mais dias
                   </span>
                 </div>
 
@@ -235,7 +273,7 @@ export function TaskModal() {
                         type="button"
                         onClick={() => toggleRoutineDay(day.id)}
                         className={cn(
-                          "rounded-[20px] border px-3 py-3 text-center transition duration-200 ease-out",
+                          "rounded-[20px] border py-2 text-center transition duration-200 ease-out",
                           isSelected
                             ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)] shadow-[0_12px_32px_rgba(15,118,110,0.14)]"
                             : "border-[var(--border)] bg-[var(--panel-soft)] text-[var(--text-muted)] hover:bg-[var(--panel)] hover:text-[var(--text-primary)]",

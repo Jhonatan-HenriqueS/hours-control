@@ -45,6 +45,7 @@ export interface Task {
   title: string;
   description: string;
   dueDate: string;
+  estimatedDuration?: string | null;
   status: TaskStatus;
   routineDays?: WeekdayId[];
   categoryId?: string | null;
@@ -59,6 +60,7 @@ export interface TaskInput {
   title: string;
   description: string;
   dueDate: string;
+  estimatedDuration: string;
   status: TaskStatus;
   routineDays: WeekdayId[];
   categoryId: string;

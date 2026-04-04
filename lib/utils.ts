@@ -39,6 +39,28 @@ export function formatDateLabel(value: Date) {
   }).format(value);
 }
 
+export function isValidDurationValue(value: string) {
+  return /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
+}
+
+export function formatDurationLabel(value?: string | null) {
+  if (!value || !isValidDurationValue(value)) {
+    return "Duração indefinida";
+  }
+
+  const [hours, minutes] = value.split(":").map(Number);
+
+  if (hours > 0 && minutes > 0) {
+    return `${hours}h ${minutes}min`;
+  }
+
+  if (hours > 0) {
+    return `${hours}h`;
+  }
+
+  return `${minutes}min`;
+}
+
 function getStartOfDate(value: Date) {
   return new Date(value.getFullYear(), value.getMonth(), value.getDate());
 }

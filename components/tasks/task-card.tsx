@@ -5,11 +5,13 @@ import {
   CalendarIcon,
   CheckIcon,
   ClockIcon,
+  HourglassIcon,
   Trash2Icon,
 } from "@/components/ui/icons";
 import {
   cn,
   formatTaskDate,
+  formatDurationLabel,
   getTaskRelativeScheduleLabel,
   getNextRoutineWeekdayId,
   sortWeekdays,
@@ -131,6 +133,15 @@ export function TaskCard({ task }: TaskCardProps) {
             </span>
           </div>
           <p className="mt-2">{getTaskRelativeScheduleLabel(task)}</p>
+        </div>
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--panel-soft)] px-4 py-3 sm:col-span-2">
+          <div className="flex items-center gap-2">
+            <HourglassIcon className="size-4" />
+            <span className="font-medium text-[var(--text-primary)]">
+              Duração estimada
+            </span>
+          </div>
+          <p className="mt-2">{formatDurationLabel(task.estimatedDuration)}</p>
         </div>
         <div className="flex items-center justify-center w-full sm:col-span-2">
           <Button
