@@ -84,6 +84,11 @@ export function TaskModal() {
     }));
   }
 
+  function selectCategory(categoryId: string) {
+    updateField("categoryId", categoryId);
+    setShowCategories(false);
+  }
+
   function handleSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorMessage(null);
@@ -326,7 +331,7 @@ export function TaskModal() {
                         <button
                           key={category.id}
                           type="button"
-                          onClick={() => updateField("categoryId", category.id)}
+                          onClick={() => selectCategory(category.id)}
                           className={cn(
                             "rounded-[22px] border px-4 py-3 text-left transition duration-200 ease-out",
                             isSelected
