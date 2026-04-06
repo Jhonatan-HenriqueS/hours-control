@@ -46,6 +46,9 @@ export interface Task {
   description: string;
   dueDate: string;
   estimatedDuration?: string | null;
+  trackedDurationMs?: number | null;
+  timerStartedAt?: string | null;
+  isTimerRunning?: boolean;
   status: TaskStatus;
   routineDays?: WeekdayId[];
   categoryId?: string | null;

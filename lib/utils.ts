@@ -43,6 +43,18 @@ export function isValidDurationValue(value: string) {
   return /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
 }
 
+export function formatDurationInputFromMs(value: number) {
+  if (value <= 0) {
+    return "00:00";
+  }
+
+  const totalMinutes = Math.max(1, Math.ceil(value / 60_000));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
 export function formatDurationLabel(value?: string | null) {
   if (!value || !isValidDurationValue(value)) {
     return "Duração indefinida";
@@ -59,6 +71,35 @@ export function formatDurationLabel(value?: string | null) {
   }
 
   return `${minutes}min`;
+}
+
+export function getTrackedDurationMs(task: {
+  trackedDurationMs?: number | null;
+  timerStartedAt?: string | null;
+  isTimerRunning?: boolean;
+}, now = new Date()) {
+  const baseDuration = task.trackedDurationMs ?? 0;
+
+  if (!task.isTimerRunning || !task.timerStartedAt) {
+    return baseDuration;
+  }
+
+  const startedAt = new Date(task.timerStartedAt);
+
+  if (Number.isNaN(startedAt.getTime())) {
+    return baseDuration;
+  }
+
+  return Math.max(0, baseDuration + (now.getTime() - startedAt.getTime()));
+}
+
+export function formatRunningDurationLabel(value: number) {
+  const totalSeconds = Math.max(0, Math.floor(value / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 function getStartOfDate(value: Date) {

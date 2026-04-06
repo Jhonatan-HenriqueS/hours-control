@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { useAppContext } from "@/components/app/app-provider";
 import { MobileSidebar, Sidebar } from "@/components/layout/sidebar";
+import { TaskCompletionModal } from "@/components/tasks/task-completion-modal";
 import { TaskModal } from "@/components/tasks/task-modal";
 import { Topbar } from "@/components/layout/topbar";
 
@@ -12,7 +13,7 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
-  const { isTaskModalOpen } = useAppContext();
+  const { isTaskCompletionModalOpen, isTaskModalOpen } = useAppContext();
 
   return (
     <div className="relative flex min-h-screen">
@@ -27,6 +28,7 @@ export function AppShell({ children }: AppShellProps) {
       </div>
 
       {isTaskModalOpen ? <TaskModal /> : null}
+      {isTaskCompletionModalOpen ? <TaskCompletionModal /> : null}
     </div>
   );
 }

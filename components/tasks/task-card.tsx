@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import { useAppContext } from "@/components/app/app-provider";
 import { Button } from "@/components/ui/button";
 import { WEEKDAY_OPTIONS } from "@/lib/constants";
@@ -6,12 +10,15 @@ import {
   CheckIcon,
   ClockIcon,
   HourglassIcon,
+  PauseIcon,
   Trash2Icon,
 } from "@/components/ui/icons";
 import {
   cn,
   formatTaskDate,
   formatDurationLabel,
+  formatRunningDurationLabel,
+  getTrackedDurationMs,
   getTaskRelativeScheduleLabel,
   getNextRoutineWeekdayId,
   sortWeekdays,
@@ -26,11 +33,31 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task }: TaskCardProps) {
-  const { completeTask, deleteTask } = useAppContext();
+  const { deleteTask, openTaskCompletionModal, pauseTaskTimer } = useAppContext();
   const isCompleted = Boolean(task.isCompleted);
+  const isTimerRunning = Boolean(task.isTimerRunning);
   const categoryColor = getCategoryColorOption(task.categoryColor);
   const nextRoutineDay = getNextRoutineWeekdayId(task.routineDays);
   const routineDays = sortWeekdays(task.routineDays ?? []);
+  const [timerNow, setTimerNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!isTimerRunning) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setTimerNow(Date.now());
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [isTimerRunning]);
+
+  const runningDurationLabel = formatRunningDurationLabel(
+    getTrackedDurationMs(task, new Date(timerNow)),
+  );
 
   return (
     <article
@@ -141,29 +168,57 @@ export function TaskCard({ task }: TaskCardProps) {
               Duração estimada
             </span>
           </div>
-          <p className="mt-2">{formatDurationLabel(task.estimatedDuration)}</p>
+          <p className="mt-2">
+            {isTimerRunning
+              ? runningDurationLabel
+              : formatDurationLabel(task.estimatedDuration)}
+          </p>
         </div>
         <div className="flex items-center justify-center w-full sm:col-span-2">
           <Button
             type="button"
             size="icon"
             variant={isCompleted ? "outline" : "secondary"}
-            onClick={() =>
-              isCompleted ? deleteTask(task.id) : completeTask(task.id)
-            }
+            onClick={() => {
+              if (isCompleted) {
+                deleteTask(task.id);
+                return;
+              }
+
+              if (isTimerRunning) {
+                pauseTaskTimer(task.id);
+                return;
+              }
+
+              openTaskCompletionModal(task.id);
+            }}
             aria-label={
-              isCompleted ? "Excluir tarefa concluída" : "Concluir tarefa"
+              isCompleted
+                ? "Excluir tarefa concluída"
+                : isTimerRunning
+                  ? "Pausar cronômetro"
+                  : "Concluir tarefa"
             }
-            title={isCompleted ? "Excluir tarefa" : "Concluir tarefa"}
+            title={
+              isCompleted
+                ? "Excluir tarefa"
+                : isTimerRunning
+                  ? "Pausar cronômetro"
+                  : "Concluir tarefa"
+            }
             className={cn(
               "shrink-0 w-full",
               isCompleted
                 ? " border-rose-300/60 text-rose-700 hover:bg-rose-500/50 dark:bg-rose-400 dark:border-rose-800 dark:text-white"
-                : "bg-emerald-400 text-emerald-700 hover:bg-emerald-500/50 dark:text-white",
+                : isTimerRunning
+                  ? "border-cyan-200/70 bg-[linear-gradient(135deg,rgba(207,250,254,0.98),rgba(224,242,254,0.96),rgba(186,230,253,0.92))] text-cyan-800 shadow-[0_18px_40px_rgba(34,211,238,0.16)] hover:bg-cyan-100 dark:border-cyan-700/60 dark:bg-[linear-gradient(135deg,rgba(8,47,73,0.95),rgba(14,116,144,0.32),rgba(30,64,175,0.28))] dark:text-cyan-100"
+                  : "bg-emerald-400 text-emerald-700 hover:bg-emerald-500/50 dark:text-white",
             )}
           >
             {isCompleted ? (
               <Trash2Icon className="size-[18px]" />
+            ) : isTimerRunning ? (
+              <PauseIcon className="size-[18px]" />
             ) : (
               <CheckIcon className="size-[18px]" />
             )}

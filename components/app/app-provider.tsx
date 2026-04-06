@@ -11,6 +11,7 @@ import {
 import { MENU_ITEMS, STORAGE_KEYS, WEEKDAY_OPTIONS } from "@/lib/constants";
 import {
   createId,
+  getTrackedDurationMs,
   isValidDurationValue,
   shouldResetRoutineTask,
   sortWeekdays,
@@ -34,6 +35,14 @@ type AuthResult = {
   message?: string;
 };
 
+type TaskCompletionMode = "start" | "stop";
+
+interface TaskCompletionModalState {
+  taskId: string;
+  mode: TaskCompletionMode;
+  shouldResumeOnClose?: boolean;
+}
+
 interface AppContextValue {
   isReady: boolean;
   categories: Category[];
@@ -45,12 +54,17 @@ interface AppContextValue {
   isSidebarCollapsed: boolean;
   isMobileMenuOpen: boolean;
   isTaskModalOpen: boolean;
+  isTaskCompletionModalOpen: boolean;
+  taskCompletionMode: TaskCompletionMode | null;
+  activeTaskCompletionTask: Task | null;
   toggleTheme: () => void;
   toggleSidebar: () => void;
   setCurrentView: (view: AppView) => void;
   setMobileMenuOpen: (open: boolean) => void;
   openTaskModal: () => void;
   closeTaskModal: () => void;
+  openTaskCompletionModal: (taskId: string) => void;
+  closeTaskCompletionModal: () => void;
   login: (payload: AuthPayload) => AuthResult;
   register: (payload: AuthPayload) => AuthResult;
   logout: () => void;
@@ -58,7 +72,9 @@ interface AppContextValue {
   createCategory: (category: CategoryInput) => AuthResult;
   updateCategory: (categoryId: string, category: CategoryInput) => AuthResult;
   deleteCategory: (categoryId: string) => void;
-  completeTask: (taskId: string) => void;
+  completeTask: (taskId: string, duration?: string | null) => AuthResult;
+  startTaskTimer: (taskId: string) => void;
+  pauseTaskTimer: (taskId: string) => void;
   deleteTask: (taskId: string) => void;
 }
 
@@ -95,7 +111,11 @@ export function AppProvider({ children }: AppProviderProps) {
     usePersistentState<boolean>(STORAGE_KEYS.sidebar, false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [taskCompletionModal, setTaskCompletionModal] =
+    useState<TaskCompletionModalState | null>(null);
   const [, setDayVersion] = useState(() => Date.now());
+  const activeTaskCompletionTask =
+    tasks.find((task) => task.id === taskCompletionModal?.taskId) ?? null;
 
   const isReady =
     themeReady &&
@@ -115,12 +135,15 @@ export function AppProvider({ children }: AppProviderProps) {
   }, [theme]);
 
   useEffect(() => {
-    document.body.style.overflow = isMobileMenuOpen || isTaskModalOpen ? "hidden" : "";
+    document.body.style.overflow =
+      isMobileMenuOpen || isTaskModalOpen || Boolean(taskCompletionModal)
+        ? "hidden"
+        : "";
 
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isMobileMenuOpen, isTaskModalOpen]);
+  }, [isMobileMenuOpen, isTaskModalOpen, taskCompletionModal]);
 
   useEffect(() => {
     if (!tasksReady) {
@@ -263,6 +286,7 @@ export function AppProvider({ children }: AppProviderProps) {
     setCurrentViewState("dashboard");
     setIsMobileMenuOpen(false);
     setIsTaskModalOpen(false);
+    setTaskCompletionModal(null);
   }
 
   function addTask(task: TaskInput): AuthResult {
@@ -424,22 +448,95 @@ export function AppProvider({ children }: AppProviderProps) {
     setCategories(categories.filter((category) => category.id !== categoryId));
   }
 
-  function completeTask(taskId: string) {
-    setTasks(
-      tasks.map((task) =>
+  function completeTask(taskId: string, duration?: string | null): AuthResult {
+    const normalizedDuration = duration?.trim() ?? "";
+
+    if (normalizedDuration && !isValidDurationValue(normalizedDuration)) {
+      return {
+        ok: false,
+        message: "Informe a duração no formato hh:mm.",
+      };
+    }
+
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
         task.id === taskId
           ? {
               ...task,
+              estimatedDuration:
+                normalizedDuration || task.estimatedDuration || null,
+              trackedDurationMs: null,
+              timerStartedAt: null,
+              isTimerRunning: false,
               isCompleted: true,
-              completedAt: task.completedAt ?? new Date().toISOString(),
+              completedAt: new Date().toISOString(),
+            }
+          : task,
+      ),
+    );
+
+    setTaskCompletionModal(null);
+
+    return { ok: true };
+  }
+
+  function startTaskTimer(taskId: string) {
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              trackedDurationMs: 0,
+              timerStartedAt: new Date().toISOString(),
+              isTimerRunning: true,
+              isCompleted: false,
+              completedAt: null,
+            }
+          : task,
+      ),
+    );
+    setTaskCompletionModal(null);
+  }
+
+  function resumeTaskTimer(taskId: string) {
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              timerStartedAt: new Date().toISOString(),
+              isTimerRunning: true,
             }
           : task,
       ),
     );
   }
 
+  function pauseTaskTimer(taskId: string) {
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              trackedDurationMs: getTrackedDurationMs(task),
+              timerStartedAt: null,
+              isTimerRunning: false,
+            }
+          : task,
+      ),
+    );
+    setTaskCompletionModal({
+      taskId,
+      mode: "stop",
+      shouldResumeOnClose: true,
+    });
+  }
+
   function deleteTask(taskId: string) {
     setTasks(tasks.filter((task) => task.id !== taskId));
+    if (taskCompletionModal?.taskId === taskId) {
+      setTaskCompletionModal(null);
+    }
   }
 
   function toggleTheme() {
@@ -463,6 +560,21 @@ export function AppProvider({ children }: AppProviderProps) {
     setIsTaskModalOpen(false);
   }
 
+  function openTaskCompletionModal(taskId: string) {
+    setTaskCompletionModal({ taskId, mode: "start" });
+  }
+
+  function closeTaskCompletionModal() {
+    if (
+      taskCompletionModal?.mode === "stop" &&
+      taskCompletionModal.shouldResumeOnClose
+    ) {
+      resumeTaskTimer(taskCompletionModal.taskId);
+    }
+
+    setTaskCompletionModal(null);
+  }
+
   return (
     <AppContext.Provider
       value={{
@@ -476,12 +588,17 @@ export function AppProvider({ children }: AppProviderProps) {
         isSidebarCollapsed,
         isMobileMenuOpen,
         isTaskModalOpen,
+        isTaskCompletionModalOpen: Boolean(taskCompletionModal),
+        taskCompletionMode: taskCompletionModal?.mode ?? null,
+        activeTaskCompletionTask,
         toggleTheme,
         toggleSidebar,
         setCurrentView,
         setMobileMenuOpen: setIsMobileMenuOpen,
         openTaskModal,
         closeTaskModal,
+        openTaskCompletionModal,
+        closeTaskCompletionModal,
         login,
         register,
         logout,
@@ -490,6 +607,8 @@ export function AppProvider({ children }: AppProviderProps) {
         updateCategory,
         deleteCategory,
         completeTask,
+        startTaskTimer,
+        pauseTaskTimer,
         deleteTask,
       }}
     >
