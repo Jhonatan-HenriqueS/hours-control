@@ -271,14 +271,14 @@ export function AppProvider({ children }: AppProviderProps) {
     const estimatedDuration = task.estimatedDuration.trim();
     const sortedRoutineDays = sortWeekdays(task.routineDays);
 
-    if (!title || !description || !task.categoryId || !estimatedDuration) {
+    if (!title || !description || !task.categoryId) {
       return {
         ok: false,
-        message: "Preencha título, descrição, duração e categoria.",
+        message: "Preencha título, descrição e categoria.",
       };
     }
 
-    if (!isValidDurationValue(estimatedDuration)) {
+    if (estimatedDuration && !isValidDurationValue(estimatedDuration)) {
       return {
         ok: false,
         message: "Informe a duração no formato hh:mm.",
@@ -317,7 +317,7 @@ export function AppProvider({ children }: AppProviderProps) {
       title,
       description,
       dueDate: task.status === "Ocasional" ? task.dueDate : "",
-      estimatedDuration,
+      estimatedDuration: estimatedDuration || null,
       status: task.status,
       routineDays:
         task.status === "Rotina"

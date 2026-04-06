@@ -91,17 +91,19 @@ export function TaskModal() {
     if (
       !form.title.trim() ||
       !form.description.trim() ||
-      !form.estimatedDuration.trim() ||
       !form.categoryId
     ) {
       if (!form.categoryId) {
         setShowCategories(true);
       }
-      setErrorMessage("Preencha título, descrição, duração e categoria.");
+      setErrorMessage("Preencha título, descrição e categoria.");
       return;
     }
 
-    if (!isValidDurationValue(form.estimatedDuration.trim())) {
+    if (
+      form.estimatedDuration.trim() &&
+      !isValidDurationValue(form.estimatedDuration.trim())
+    ) {
       setErrorMessage("Informe a duração no formato hh:mm.");
       return;
     }
