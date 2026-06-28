@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition, type FormEvent } from "react";
 
 import { useAppContext } from "@/components/app/app-provider";
+import { TaskDifficultyModal } from "@/components/tasks/task-difficulty-modal";
 import { Button } from "@/components/ui/button";
 import {
   CalendarIcon,
@@ -21,7 +22,12 @@ import {
   getTodayInputValue,
   isValidDurationValue,
 } from "@/lib/utils";
-import type { TaskInput, TaskStatus, WeekdayId } from "@/types/app";
+import type {
+  TaskDifficulty,
+  TaskInput,
+  TaskStatus,
+  WeekdayId,
+} from "@/types/app";
 
 type TaskField =
   | "title"
@@ -48,6 +54,7 @@ export function TaskModal() {
   const [form, setForm] = useState<TaskInput>(createInitialTaskForm);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showCategories, setShowCategories] = useState(false);
+  const [isDifficultyModalOpen, setIsDifficultyModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const availableCategories = categories.filter(
     (category) => category.categoryClass === form.status,
@@ -56,6 +63,11 @@ export function TaskModal() {
   useEffect(() => {
     function handleEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
+        if (isDifficultyModalOpen) {
+          setIsDifficultyModalOpen(false);
+          return;
+        }
+
         closeTaskModal();
       }
     }
@@ -65,7 +77,7 @@ export function TaskModal() {
     return () => {
       window.removeEventListener("keydown", handleEscape);
     };
-  }, [closeTaskModal]);
+  }, [closeTaskModal, isDifficultyModalOpen]);
 
   function updateField(field: TaskField, value: string) {
     setForm((current) => ({
@@ -123,16 +135,22 @@ export function TaskModal() {
       return;
     }
 
+    setIsDifficultyModalOpen(true);
+  }
+
+  function handleDifficultySelect(difficulty: TaskDifficulty) {
     startTransition(() => {
-      const result = addTask(form);
+      const result = addTask({ ...form, difficulty });
 
       if (!result.ok) {
+        setIsDifficultyModalOpen(false);
         setErrorMessage(result.message ?? "Não foi possível salvar a tarefa.");
         return;
       }
 
       setForm(createInitialTaskForm());
       setShowCategories(false);
+      setIsDifficultyModalOpen(false);
       closeTaskModal();
     });
   }
@@ -391,6 +409,13 @@ export function TaskModal() {
           </form>
         </div>
       </div>
+
+      {isDifficultyModalOpen ? (
+        <TaskDifficultyModal
+          onCancel={() => setIsDifficultyModalOpen(false)}
+          onSelect={handleDifficultySelect}
+        />
+      ) : null}
     </div>
   );
 }

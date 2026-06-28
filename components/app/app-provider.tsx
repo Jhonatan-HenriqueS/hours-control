@@ -164,7 +164,6 @@ export function AppProvider({ children }: AppProviderProps) {
           return {
             ...task,
             isCompleted: false,
-            completedAt: null,
           };
         });
 
@@ -302,6 +301,13 @@ export function AppProvider({ children }: AppProviderProps) {
       };
     }
 
+    if (!task.difficulty) {
+      return {
+        ok: false,
+        message: "Selecione o grau de dificuldade da tarefa.",
+      };
+    }
+
     if (estimatedDuration && !isValidDurationValue(estimatedDuration)) {
       return {
         ok: false,
@@ -342,6 +348,7 @@ export function AppProvider({ children }: AppProviderProps) {
       description,
       dueDate: task.status === "Ocasional" ? task.dueDate : "",
       estimatedDuration: estimatedDuration || null,
+      difficulty: task.difficulty,
       status: task.status,
       routineDays:
         task.status === "Rotina"
@@ -490,7 +497,6 @@ export function AppProvider({ children }: AppProviderProps) {
               timerStartedAt: new Date().toISOString(),
               isTimerRunning: true,
               isCompleted: false,
-              completedAt: null,
             }
           : task,
       ),

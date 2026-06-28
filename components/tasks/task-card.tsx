@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 
 import { useAppContext } from "@/components/app/app-provider";
 import { Button } from "@/components/ui/button";
-import { WEEKDAY_OPTIONS } from "@/lib/constants";
+import {
+  TASK_DIFFICULTY_OPTIONS,
+  WEEKDAY_OPTIONS,
+} from "@/lib/constants";
 import {
   CalendarIcon,
   CheckIcon,
@@ -24,7 +27,6 @@ import {
   sortWeekdays,
   getCategoryBadgeClasses,
   getCategoryColorOption,
-  getStatusClasses,
 } from "@/lib/utils";
 import type { Task } from "@/types/app";
 
@@ -37,6 +39,9 @@ export function TaskCard({ task }: TaskCardProps) {
   const isCompleted = Boolean(task.isCompleted);
   const isTimerRunning = Boolean(task.isTimerRunning);
   const categoryColor = getCategoryColorOption(task.categoryColor);
+  const difficulty = TASK_DIFFICULTY_OPTIONS.find(
+    (option) => option.value === task.difficulty,
+  );
   const nextRoutineDay = getNextRoutineWeekdayId(task.routineDays);
   const routineDays = sortWeekdays(task.routineDays ?? []);
   const [timerNow, setTimerNow] = useState(() => Date.now());
@@ -97,15 +102,17 @@ export function TaskCard({ task }: TaskCardProps) {
             </p>
           ) : null}
         </div>
-        <div className="flex shrink-0 items-start gap-2">
+        {difficulty ? (
           <span
-            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${getStatusClasses(
-              task.status,
-            )}`}
+            className={cn(
+              "shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ring-1",
+              difficulty.badgeClassName,
+            )}
+            title={`${difficulty.label}: ${difficulty.pointsLabel}`}
           >
-            {task.status}
+            {difficulty.pointsLabel}
           </span>
-        </div>
+        ) : null}
       </div>
 
       <div className="mt-6 grid gap-3 text-sm text-[var(--text-muted)] sm:grid-cols-2">

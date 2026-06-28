@@ -33,19 +33,15 @@ export function TaskCompletionModal() {
       return "00:00";
     }
 
-    return formatDurationInputFromMs(getTrackedDurationMs(activeTaskCompletionTask));
+    return formatDurationInputFromMs(
+      getTrackedDurationMs(activeTaskCompletionTask),
+    );
   }, [activeTaskCompletionTask]);
 
   useEffect(() => {
     if (!activeTaskCompletionTask) {
       return;
     }
-
-    setManualDuration(
-      activeTaskCompletionTask.estimatedDuration ??
-        (taskCompletionMode === "stop" ? trackedDurationValue : ""),
-    );
-    setErrorMessage(null);
   }, [activeTaskCompletionTask, taskCompletionMode, trackedDurationValue]);
 
   if (!activeTaskCompletionTask || !taskCompletionMode) {
@@ -55,7 +51,10 @@ export function TaskCompletionModal() {
   const task = activeTaskCompletionTask;
 
   function handleUseManualDuration() {
-    if (!manualDuration.trim() || !isValidDurationValue(manualDuration.trim())) {
+    if (
+      !manualDuration.trim() ||
+      !isValidDurationValue(manualDuration.trim())
+    ) {
       setErrorMessage("Informe uma duração válida no formato hh:mm.");
       return;
     }

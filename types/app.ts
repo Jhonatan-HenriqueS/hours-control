@@ -4,6 +4,8 @@ export type AuthMode = "login" | "register";
 
 export type TaskStatus = "Ocasional" | "Rotina";
 
+export type TaskDifficulty = 1 | 2 | 3;
+
 export type WeekdayId =
   | "sunday"
   | "monday"
@@ -49,6 +51,7 @@ export interface Task {
   trackedDurationMs?: number | null;
   timerStartedAt?: string | null;
   isTimerRunning?: boolean;
+  difficulty?: TaskDifficulty;
   status: TaskStatus;
   routineDays?: WeekdayId[];
   categoryId?: string | null;
@@ -64,6 +67,7 @@ export interface TaskInput {
   description: string;
   dueDate: string;
   estimatedDuration: string;
+  difficulty?: TaskDifficulty;
   status: TaskStatus;
   routineDays: WeekdayId[];
   categoryId: string;

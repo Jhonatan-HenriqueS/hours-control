@@ -1,6 +1,7 @@
 import type {
   CategoryColor,
   MenuItem,
+  TaskDifficulty,
   TaskStatus,
   WeekdayId,
 } from "@/types/app";
@@ -18,6 +19,42 @@ export const STORAGE_KEYS = {
 } as const;
 
 export const TASK_STATUS_OPTIONS: TaskStatus[] = ["Ocasional", "Rotina"];
+
+export const TASK_DIFFICULTY_OPTIONS: Array<{
+  value: TaskDifficulty;
+  label: string;
+  pointsLabel: string;
+  buttonClassName: string;
+  badgeClassName: string;
+}> = [
+  {
+    value: 3,
+    label: "Difícil",
+    pointsLabel: "3 pontos",
+    buttonClassName:
+      "border-rose-300/70 bg-rose-500/12 text-rose-700 hover:bg-rose-500/20 dark:border-rose-700/60 dark:bg-rose-400/12 dark:text-rose-200",
+    badgeClassName:
+      "bg-rose-500/12 text-rose-700 ring-rose-500/20 dark:bg-rose-400/12 dark:text-rose-200 dark:ring-rose-300/20",
+  },
+  {
+    value: 2,
+    label: "Média",
+    pointsLabel: "2 pontos",
+    buttonClassName:
+      "border-amber-300/70 bg-amber-500/12 text-amber-700 hover:bg-amber-500/20 dark:border-amber-700/60 dark:bg-amber-400/12 dark:text-amber-200",
+    badgeClassName:
+      "bg-amber-500/12 text-amber-700 ring-amber-500/20 dark:bg-amber-400/12 dark:text-amber-200 dark:ring-amber-300/20",
+  },
+  {
+    value: 1,
+    label: "Fácil",
+    pointsLabel: "1 ponto",
+    buttonClassName:
+      "border-emerald-300/70 bg-emerald-500/12 text-emerald-700 hover:bg-emerald-500/20 dark:border-emerald-700/60 dark:bg-emerald-400/12 dark:text-emerald-200",
+    badgeClassName:
+      "bg-emerald-500/12 text-emerald-700 ring-emerald-500/20 dark:bg-emerald-400/12 dark:text-emerald-200 dark:ring-emerald-300/20",
+  },
+];
 
 export const WEEKDAY_OPTIONS: Array<{
   id: WeekdayId;
