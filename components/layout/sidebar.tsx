@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState, type PointerEvent } from "react";
+
 import { useAppContext } from "@/components/app/app-provider";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,29 +24,27 @@ const iconMap: Record<MenuIcon, typeof DashboardIcon> = {
 };
 
 interface SidebarContentProps {
+  collapsed?: boolean;
   mobile?: boolean;
 }
 
-function SidebarContent({ mobile = false }: SidebarContentProps) {
+function SidebarContent({
+  collapsed: collapsedProp = false,
+  mobile = false,
+}: SidebarContentProps) {
   const {
     currentView,
     currentUser,
-    isSidebarCollapsed,
     menuItems,
     logout,
     setCurrentView,
     setMobileMenuOpen,
-    toggleSidebar,
   } = useAppContext();
 
-  const collapsed = !mobile && isSidebarCollapsed;
+  const collapsed = !mobile && collapsedProp;
 
   return (
-    <div
-      className=" flex h-full flex-col z-20 "
-      onMouseLeave={toggleSidebar}
-      onMouseEnter={toggleSidebar}
-    >
+    <div className="z-20 flex h-full flex-col">
       <div className="flex items-center justify-between gap-3 px-4 pb-6 pt-4">
         <LogoMark compact={collapsed} />
         {mobile && (
@@ -150,7 +150,32 @@ function SidebarContent({ mobile = false }: SidebarContentProps) {
 }
 
 export function Sidebar() {
-  const { isSidebarCollapsed } = useAppContext();
+  const [isHovered, setIsHovered] = useState(false);
+  const collapsed = !isHovered;
+
+  useEffect(() => {
+    function collapseSidebar() {
+      setIsHovered(false);
+    }
+
+    window.addEventListener("blur", collapseSidebar);
+    window.addEventListener("focus", collapseSidebar);
+    window.addEventListener("pageshow", collapseSidebar);
+    document.addEventListener("visibilitychange", collapseSidebar);
+
+    return () => {
+      window.removeEventListener("blur", collapseSidebar);
+      window.removeEventListener("focus", collapseSidebar);
+      window.removeEventListener("pageshow", collapseSidebar);
+      document.removeEventListener("visibilitychange", collapseSidebar);
+    };
+  }, []);
+
+  function expandFromMouse(event: PointerEvent<HTMLElement>) {
+    if (event.pointerType === "mouse") {
+      setIsHovered(true);
+    }
+  }
 
   return (
     <>
@@ -158,17 +183,21 @@ export function Sidebar() {
         aria-hidden="true"
         className={cn(
           "hidden md:block md:shrink-0 md:transition-[width] md:duration-300 md:ease-out",
-          isSidebarCollapsed ? "md:w-[120px]" : "md:w-[296px]",
+          collapsed ? "md:w-[120px]" : "md:w-[296px]",
         )}
       />
       <aside
+        onPointerEnter={expandFromMouse}
+        onPointerMove={expandFromMouse}
+        onPointerLeave={() => setIsHovered(false)}
+        onPointerCancel={() => setIsHovered(false)}
         className={cn(
           "fixed inset-y-0 left-0 z-30 hidden px-4 py-4 md:block md:transition-[width] md:duration-300 md:ease-out",
-          isSidebarCollapsed ? "md:w-[120px]" : "md:w-[296px]",
+          collapsed ? "md:w-[120px]" : "md:w-[296px]",
         )}
       >
         <div className="surface-panel h-[calc(100vh-2rem)] overflow-hidden rounded-[34px]">
-          <SidebarContent />
+          <SidebarContent collapsed={collapsed} />
         </div>
       </aside>
     </>

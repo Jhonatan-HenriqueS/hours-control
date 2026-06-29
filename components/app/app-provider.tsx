@@ -51,14 +51,12 @@ interface AppContextValue {
   theme: Theme;
   menuItems: MenuItem[];
   currentView: AppView;
-  isSidebarCollapsed: boolean;
   isMobileMenuOpen: boolean;
   isTaskModalOpen: boolean;
   isTaskCompletionModalOpen: boolean;
   taskCompletionMode: TaskCompletionMode | null;
   activeTaskCompletionTask: Task | null;
   toggleTheme: () => void;
-  toggleSidebar: () => void;
   setCurrentView: (view: AppView) => void;
   setMobileMenuOpen: (open: boolean) => void;
   openTaskModal: () => void;
@@ -107,8 +105,6 @@ export function AppProvider({ children }: AppProviderProps) {
   );
   const [currentView, setCurrentViewState, viewReady] =
     usePersistentState<AppView>(STORAGE_KEYS.view, "dashboard");
-  const [isSidebarCollapsed, setIsSidebarCollapsed, sidebarReady] =
-    usePersistentState<boolean>(STORAGE_KEYS.sidebar, false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [taskCompletionModal, setTaskCompletionModal] =
@@ -123,8 +119,7 @@ export function AppProvider({ children }: AppProviderProps) {
     accountsReady &&
     categoriesReady &&
     tasksReady &&
-    viewReady &&
-    sidebarReady;
+    viewReady;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -549,10 +544,6 @@ export function AppProvider({ children }: AppProviderProps) {
     setTheme(theme === "dark" ? "light" : "dark");
   }
 
-  function toggleSidebar() {
-    setIsSidebarCollapsed(!isSidebarCollapsed);
-  }
-
   function setCurrentView(view: AppView) {
     setCurrentViewState(view);
     setIsMobileMenuOpen(false);
@@ -591,14 +582,12 @@ export function AppProvider({ children }: AppProviderProps) {
         theme,
         menuItems: MENU_ITEMS,
         currentView,
-        isSidebarCollapsed,
         isMobileMenuOpen,
         isTaskModalOpen,
         isTaskCompletionModalOpen: Boolean(taskCompletionModal),
         taskCompletionMode: taskCompletionModal?.mode ?? null,
         activeTaskCompletionTask,
         toggleTheme,
-        toggleSidebar,
         setCurrentView,
         setMobileMenuOpen: setIsMobileMenuOpen,
         openTaskModal,

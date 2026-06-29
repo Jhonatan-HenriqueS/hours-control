@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 
 import { useAppContext } from "@/components/app/app-provider";
 import { Button } from "@/components/ui/button";
@@ -25,24 +25,17 @@ export function TaskCompletionModal() {
     startTaskTimer,
     taskCompletionMode,
   } = useAppContext();
-  const [manualDuration, setManualDuration] = useState("");
+  const trackedDurationValue = activeTaskCompletionTask
+    ? formatDurationInputFromMs(
+        getTrackedDurationMs(activeTaskCompletionTask),
+      )
+    : "00:00";
+  const [manualDuration, setManualDuration] = useState(
+    () =>
+      activeTaskCompletionTask?.estimatedDuration ??
+      (taskCompletionMode === "stop" ? trackedDurationValue : ""),
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const trackedDurationValue = useMemo(() => {
-    if (!activeTaskCompletionTask) {
-      return "00:00";
-    }
-
-    return formatDurationInputFromMs(
-      getTrackedDurationMs(activeTaskCompletionTask),
-    );
-  }, [activeTaskCompletionTask]);
-
-  useEffect(() => {
-    if (!activeTaskCompletionTask) {
-      return;
-    }
-  }, [activeTaskCompletionTask, taskCompletionMode, trackedDurationValue]);
 
   if (!activeTaskCompletionTask || !taskCompletionMode) {
     return null;
@@ -87,7 +80,7 @@ export function TaskCompletionModal() {
         onClick={closeTaskCompletionModal}
       />
 
-      <div className="relative z-10 flex min-h-full items-start justify-center px-2 py-3 sm:px-4 sm:py-6">
+      <div className="relative z-10 flex min-h-full items-center justify-center px-2 py-3 sm:px-4 sm:py-6">
         <div
           role="dialog"
           aria-modal="true"
