@@ -14,6 +14,7 @@ export const STORAGE_KEYS = {
   accounts: "lumen-tasks.accounts",
   categories: "lumen-tasks.categories",
   tasks: "lumen-tasks.tasks",
+  deletedTaskScores: "lumen-tasks.deleted-task-scores",
   view: "lumen-tasks.view",
 } as const;
 

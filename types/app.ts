@@ -73,6 +73,13 @@ export interface TaskInput {
   categoryId: string;
 }
 
+export interface DeletedTaskScore {
+  taskId: string;
+  points: TaskDifficulty;
+  completedAt: string;
+  expiresAt: string;
+}
+
 export interface Category {
   id: string;
   name: string;

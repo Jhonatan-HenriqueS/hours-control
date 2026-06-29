@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { useAppContext } from "@/components/app/app-provider";
+import { TaskDeleteDialog } from "@/components/tasks/task-delete-dialog";
 import { Button } from "@/components/ui/button";
 import {
   TASK_DIFFICULTY_OPTIONS,
@@ -181,55 +182,56 @@ export function TaskCard({ task }: TaskCardProps) {
               : formatDurationLabel(task.estimatedDuration)}
           </p>
         </div>
-        <div className="flex items-center justify-center w-full sm:col-span-2">
-          <Button
-            type="button"
-            size="icon"
-            variant={isCompleted ? "outline" : "secondary"}
-            onClick={() => {
-              if (isCompleted) {
-                deleteTask(task.id);
-                return;
-              }
+        <div className="flex w-full items-center justify-center sm:col-span-2">
+          {isCompleted ? (
+            <TaskDeleteDialog
+              task={task}
+              onConfirm={() => deleteTask(task.id)}
+            >
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                aria-label="Excluir tarefa concluída"
+                title="Excluir tarefa"
+                className="w-full shrink-0 border-rose-300/60 text-rose-700 hover:bg-rose-500/50 dark:border-rose-800 dark:bg-rose-400 dark:text-white"
+              >
+                <Trash2Icon className="size-[18px]" />
+              </Button>
+            </TaskDeleteDialog>
+          ) : (
+            <Button
+              type="button"
+              size="icon"
+              variant="secondary"
+              onClick={() => {
+                if (isTimerRunning) {
+                  pauseTaskTimer(task.id);
+                  return;
+                }
 
-              if (isTimerRunning) {
-                pauseTaskTimer(task.id);
-                return;
+                openTaskCompletionModal(task.id);
+              }}
+              aria-label={
+                isTimerRunning ? "Pausar cronômetro" : "Concluir tarefa"
               }
-
-              openTaskCompletionModal(task.id);
-            }}
-            aria-label={
-              isCompleted
-                ? "Excluir tarefa concluída"
-                : isTimerRunning
-                  ? "Pausar cronômetro"
-                  : "Concluir tarefa"
-            }
-            title={
-              isCompleted
-                ? "Excluir tarefa"
-                : isTimerRunning
-                  ? "Pausar cronômetro"
-                  : "Concluir tarefa"
-            }
-            className={cn(
-              "shrink-0 w-full",
-              isCompleted
-                ? " border-rose-300/60 text-rose-700 hover:bg-rose-500/50 dark:bg-rose-400 dark:border-rose-800 dark:text-white"
-                : isTimerRunning
+              title={
+                isTimerRunning ? "Pausar cronômetro" : "Concluir tarefa"
+              }
+              className={cn(
+                "w-full shrink-0",
+                isTimerRunning
                   ? "border-cyan-200/70 bg-[linear-gradient(135deg,rgba(207,250,254,0.98),rgba(224,242,254,0.96),rgba(186,230,253,0.92))] text-cyan-800 shadow-[0_18px_40px_rgba(34,211,238,0.16)] hover:bg-cyan-100 dark:border-cyan-700/60 dark:bg-[linear-gradient(135deg,rgba(8,47,73,0.95),rgba(14,116,144,0.32),rgba(30,64,175,0.28))] dark:text-cyan-100"
                   : "bg-emerald-400 text-emerald-700 hover:bg-emerald-500/50 dark:text-white",
-            )}
-          >
-            {isCompleted ? (
-              <Trash2Icon className="size-[18px]" />
-            ) : isTimerRunning ? (
-              <PauseIcon className="size-[18px]" />
-            ) : (
-              <CheckIcon className="size-[18px]" />
-            )}
-          </Button>
+              )}
+            >
+              {isTimerRunning ? (
+                <PauseIcon className="size-[18px]" />
+              ) : (
+                <CheckIcon className="size-[18px]" />
+              )}
+            </Button>
+          )}
         </div>
       </div>
     </article>

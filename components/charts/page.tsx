@@ -7,11 +7,10 @@ import { WEEKDAY_OPTIONS } from "@/lib/constants";
 const WEEK_LABELS = WEEKDAY_OPTIONS.map((_, index) => String(index + 1));
 
 export default function ChartsPage() {
-  const { tasks } = useAppContext();
-  const totalPoints = tasks.reduce(
-    (total, task) => total + (task.difficulty ?? 0),
-    0,
-  );
+  const { deletedTaskScores, tasks } = useAppContext();
+  const totalPoints =
+    tasks.reduce((total, task) => total + (task.difficulty ?? 0), 0) +
+    deletedTaskScores.reduce((total, score) => total + score.points, 0);
   const pointsByWeekday = tasks.reduce<number[]>((points, task) => {
     if (!task.completedAt || !task.difficulty) {
       return points;
@@ -26,6 +25,14 @@ export default function ChartsPage() {
     points[completedAt.getDay()] += task.difficulty;
     return points;
   }, Array.from({ length: 7 }, () => 0));
+
+  deletedTaskScores.forEach((score) => {
+    const completedAt = new Date(score.completedAt);
+
+    if (!Number.isNaN(completedAt.getTime())) {
+      pointsByWeekday[completedAt.getDay()] += score.points;
+    }
+  });
   const scaleMaximum = totalPoints > 0 ? totalPoints : 6;
   const scaleInterval = scaleMaximum / 6;
 

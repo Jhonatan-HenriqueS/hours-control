@@ -169,7 +169,7 @@ export function TaskModal() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="task-modal-title"
-          className="surface-panel animate-fade-in relative w-full max-w-2xl max-h-[calc(100vh-1.5rem)] overflow-y-auto rounded-[34px] p-6 sm:max-h-[min(88vh,54rem)] sm:p-8"
+          className="surface-panel task-modal-panel animate-fade-in relative w-full max-w-2xl max-h-[calc(100vh-1.5rem)] overflow-y-auto rounded-[34px] p-6 sm:max-h-[min(88vh,54rem)] sm:p-8"
         >
           <div className="flex items-start justify-between gap-4">
             <div>

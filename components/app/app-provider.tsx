@@ -22,6 +22,7 @@ import type {
   AuthPayload,
   Category,
   CategoryInput,
+  DeletedTaskScore,
   MenuItem,
   StoredAccount,
   Task,
@@ -48,6 +49,7 @@ interface AppContextValue {
   categories: Category[];
   currentUser: User | null;
   tasks: Task[];
+  deletedTaskScores: DeletedTaskScore[];
   theme: Theme;
   menuItems: MenuItem[];
   currentView: AppView;
@@ -103,6 +105,8 @@ export function AppProvider({ children }: AppProviderProps) {
     STORAGE_KEYS.tasks,
     [],
   );
+  const [deletedTaskScores, setDeletedTaskScores, deletedTaskScoresReady] =
+    usePersistentState<DeletedTaskScore[]>(STORAGE_KEYS.deletedTaskScores, []);
   const [currentView, setCurrentViewState, viewReady] =
     usePersistentState<AppView>(STORAGE_KEYS.view, "dashboard");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -119,6 +123,7 @@ export function AppProvider({ children }: AppProviderProps) {
     accountsReady &&
     categoriesReady &&
     tasksReady &&
+    deletedTaskScoresReady &&
     viewReady;
 
   useEffect(() => {
@@ -187,6 +192,31 @@ export function AppProvider({ children }: AppProviderProps) {
       window.clearInterval(intervalId);
     };
   }, [setTasks, tasksReady]);
+
+  useEffect(() => {
+    if (!deletedTaskScoresReady) {
+      return;
+    }
+
+    function removeExpiredScores() {
+      const now = Date.now();
+
+      setDeletedTaskScores((currentScores) => {
+        const activeScores = currentScores.filter(
+          (score) => new Date(score.expiresAt).getTime() > now,
+        );
+
+        return activeScores.length === currentScores.length
+          ? currentScores
+          : activeScores;
+      });
+    }
+
+    removeExpiredScores();
+    const intervalId = window.setInterval(removeExpiredScores, 60_000);
+
+    return () => window.clearInterval(intervalId);
+  }, [deletedTaskScoresReady, setDeletedTaskScores]);
 
   function login(payload: AuthPayload): AuthResult {
     const name = payload.name.trim();
@@ -534,7 +564,29 @@ export function AppProvider({ children }: AppProviderProps) {
   }
 
   function deleteTask(taskId: string) {
-    setTasks(tasks.filter((task) => task.id !== taskId));
+    const taskToDelete = tasks.find((task) => task.id === taskId);
+    const completedAt = taskToDelete?.completedAt;
+    const points = taskToDelete?.difficulty;
+
+    if (taskToDelete?.isCompleted && completedAt && points) {
+      const nextSunday = new Date();
+      nextSunday.setHours(0, 0, 0, 0);
+      nextSunday.setDate(nextSunday.getDate() + (7 - nextSunday.getDay()));
+
+      setDeletedTaskScores((currentScores) => [
+        ...currentScores.filter((score) => score.taskId !== taskId),
+        {
+          taskId,
+          points,
+          completedAt,
+          expiresAt: nextSunday.toISOString(),
+        },
+      ]);
+    }
+
+    setTasks((currentTasks) =>
+      currentTasks.filter((task) => task.id !== taskId),
+    );
     if (taskCompletionModal?.taskId === taskId) {
       setTaskCompletionModal(null);
     }
@@ -579,6 +631,7 @@ export function AppProvider({ children }: AppProviderProps) {
         categories,
         currentUser,
         tasks,
+        deletedTaskScores,
         theme,
         menuItems: MENU_ITEMS,
         currentView,
